@@ -3,21 +3,21 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const PORT = process.env.PORT;
-const {connectDB}= require("./config/connectDB");
+const { connectDB } = require("./config/connectDB");
 connectDB();
 
 
 
 
 
-mongoose.connection.once("open",()=>{
+mongoose.connection.once("open", () => {
     console.log("Connected to MongoDB");
-    app.listen(PORT,()=>{
-    console.log(`Servsr running on port ${PORT}`);
+    app.listen(PORT, () => {
+        console.log(`Servsr running on port ${PORT}`);
+    });
 });
-});
-mongoose.connection.on("error",(err)=>{
-console.log(err);
+mongoose.connection.on("error", (err) => {
+    console.log(err);
 });
 
 
