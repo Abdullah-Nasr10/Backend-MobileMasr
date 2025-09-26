@@ -22,8 +22,8 @@ The repo is organized so that each team member can contribute without conflicts.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/USERNAME/react-team-project.git
-   cd react-team-project
+   git clone https://github.com/Abdullah-Nasr10/Backend-FinalProject
+   cd Backend-FinalProject
    ```
 
 2. Install dependencies:
