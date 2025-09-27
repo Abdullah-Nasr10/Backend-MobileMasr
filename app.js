@@ -9,6 +9,7 @@ const productRoutes = require("./routes/productRoute");
 const brandRoutes = require("./routes/brandRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
 
+
 // ================connectDB=================
 const { connectDB } = require("./config/connectDB");
 connectDB();
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
+
 
 
 
