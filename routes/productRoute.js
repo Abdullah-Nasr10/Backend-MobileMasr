@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
+
 /**
  * @openapi
  * tags:
@@ -147,7 +148,8 @@ router.get("/", productController.getProducts);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Product details retrieved successfully
@@ -171,7 +173,8 @@ router.get("/:id", productController.getProductById);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -197,7 +200,8 @@ router.put("/:id", productController.updateProduct);
  *       - in: path
  *         name: id
  *         required: true
- *         schema: { type: string }
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Product deleted successfully
@@ -206,8 +210,8 @@ router.put("/:id", productController.updateProduct);
  */
 router.delete("/:id", productController.deleteProduct);
 
-
 module.exports = router;
+
 
 
 
