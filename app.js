@@ -8,12 +8,17 @@ connectDB();
 
 
 const brandRoute = require("./routes/brandRoute");
+const wishlistRoute = require("./routes/wishlistRoute");
 
 app.use(express.json());
 
 // ------------------------------ mos-Brand-------------------------//
 
 app.use("/api/brands", brandRoute);
+
+// ------------------------------ mos-Wishlist-------------------------//
+
+app.use("/api/wishlist", wishlistRoute);
 
 
 mongoose.connection.once("open", () => {
