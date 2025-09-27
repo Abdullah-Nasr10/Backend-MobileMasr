@@ -3,8 +3,17 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const PORT = process.env.PORT;
+const productRoutes = require("./routes/productRoute");
+
+
 const { connectDB } = require("./config/connectDB");
 connectDB();
+
+
+app.use("/products", productRoutes);
+
+
+
 
 
 
