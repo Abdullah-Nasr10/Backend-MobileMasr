@@ -4,13 +4,19 @@ const app = express();
 const mongoose = require("mongoose");
 const PORT = process.env.PORT;
 const productRoutes = require("./routes/productRoute");
+const brandRoutes = require("./routes/brandRoute");
 
 
 const { connectDB } = require("./config/connectDB");
 connectDB();
 
 
+// Middleware
+app.use(express.json());
+
+
 app.use("/products", productRoutes);
+app.use("/brands", brandRoutes);
 
 
 
