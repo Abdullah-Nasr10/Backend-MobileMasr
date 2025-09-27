@@ -5,10 +5,28 @@ const mongoose = require("mongoose");
 const cors = require("cors")
 const PORT = process.env.PORT;
 
+//========import-swagger========
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
+
+
+
+
+
 // ================Import-Routes====================
 const productRoutes = require("./routes/productRoute");
 const brandRoutes = require("./routes/brandRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
+
+
+
+
+
+
+
+
+
+
 
 // ================connectDB=================
 const { connectDB } = require("./config/connectDB");
@@ -19,10 +37,46 @@ connectDB();
 app.use(express.json());
 app.use(cors())
 
+
+
+
+
+
 // =============Routes====================
 app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =======swagger-setup========
+const swaggerOptions = swaggerJsDoc({
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Final Project swagger API",
+            version: "1.0.0",
+        },
+        servers: [{
+            url: process.env.swaggerURL
+        }],
+
+    },
+    apis: ["./app.js", "./routes/*.js"]
+})
+
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOptions));
 
 
 
