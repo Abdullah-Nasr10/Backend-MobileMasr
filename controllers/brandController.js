@@ -1,28 +1,7 @@
 const Brand = require("../models/brandModel");
-// const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 
-const getBrands = async (req, res) => {
-    try {
-        const brands = await Brand.find();
-        res.status(200).json(brands);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching brands", error });
-    }
-};
 
-const getBrandById = async (req, res) => {
-    try {
-        const brand = await Brand.findById(req.params.id);
-        if (!brand) {
-            return res.status(404).json({ message: "Brand not found" });
-        }
-        res.status(200).json(brand);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching brand", error });
-    }
-};
-
+// ===============createBrand===============
 const createBrand = async (req, res) => {
     try {
         const { name, image } = req.body;
@@ -45,33 +24,62 @@ const createBrand = async (req, res) => {
     }
 };
 
-const updateBrand = async (req, res) => {
-    try {
-        const { name, image } = req.body;
 
+// ===============getAllBrands===============
+const getBrands = async (req, res) => {
+    try {
+        const brands = await Brand.find();
+        res.status(200).json(brands);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching brands", error });
+    }
+};
+
+// ===============getBrandsByID===============
+const getBrandById = async (req, res) => {
+    try {
         const brand = await Brand.findById(req.params.id);
         if (!brand) {
             return res.status(404).json({ message: "Brand not found" });
         }
+        res.status(200).json(brand);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching brand", error });
+    }
+};
 
-        brand.name = name || brand.name;
-        brand.image = image || brand.image;
 
-        const updatedBrand = await brand.save();
+
+// ===============updateBrandsByID===============
+const updateBrand = async (req, res) => {
+    try {
+        const { name, image } = req.body;
+
+        const updatedBrand = await Brand.findByIdAndUpdate(
+            req.params.id,
+            { name, image },
+            { new: true, runValidators: true } // new => يرجع النسخة الجديدة بعد التعديل
+        );
+
+        if (!updatedBrand) {
+            return res.status(404).json({ message: "Brand not found" });
+        }
+
         res.status(200).json(updatedBrand);
     } catch (error) {
         res.status(500).json({ message: "Error updating brand", error });
     }
 };
 
+// ===============deleteBrandsByID===============
 const deleteBrand = async (req, res) => {
     try {
-        const brand = await Brand.findById(req.params.id);
-        if (!brand) {
+        const deletedBrand = await Brand.findByIdAndDelete(req.params.id);
+
+        if (!deletedBrand) {
             return res.status(404).json({ message: "Brand not found" });
         }
 
-        await brand.deleteOne();
         res.status(200).json({ message: "Brand deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting brand", error });
