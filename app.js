@@ -28,15 +28,6 @@ mongoose.connection.on("error", (err) => {
 
 
 
-const brandRoute = require("./routes/brandRoute");
-
-app.use(express.json());
-
-// ------------------------------ mos-Brand-------------------------//
-
-app.use("/api/brands", brandRoute);
-
-
 
 mongoose.connect("mongodb+srv://abdullahnasr1022_db_user:IQS5XWKylJVL3Ghc@productioncluster.lcsqmf0.mongodb.net/EcommerceMobileStore")
     .then(() => console.log("mongoDB Atlas Connected"))
