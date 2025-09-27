@@ -4,18 +4,30 @@ const WishlistController = require("../controllers/wishlistController");
 
 /**
  * @openapi
+ * tags:
+ *   name: Wishlist
+ *   description: API for managing user wishlists
+ */
+
+/**
+ * @openapi
  * /wishlist/{userId}:
  *   get:
+ *     tags: [Wishlist]
  *     summary: Get wishlist for a user
  *     description: Retrieve wishlist details (with products) for a given user
  *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
- *         schema: { type: string, example: "66f1c6c0e4b6b6d2c1b2a345" }
+ *         schema:
+ *           type: string
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
  *     responses:
- *       200: { description: Wishlist retrieved successfully }
- *       404: { description: Wishlist not found }
+ *       200:
+ *         description: Wishlist retrieved successfully
+ *       404:
+ *         description: Wishlist not found
  */
 router.get("/:userId", WishlistController.getWishlist);
 
@@ -23,13 +35,16 @@ router.get("/:userId", WishlistController.getWishlist);
  * @openapi
  * /wishlist/{userId}:
  *   post:
+ *     tags: [Wishlist]
  *     summary: Add product to wishlist
  *     description: Add a product to the user's wishlist
  *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
- *         schema: { type: string, example: "66f1c6c0e4b6b6d2c1b2a345" }
+ *         schema:
+ *           type: string
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
  *     requestBody:
  *       required: true
  *       content:
@@ -37,10 +52,14 @@ router.get("/:userId", WishlistController.getWishlist);
  *           schema:
  *             type: object
  *             properties:
- *               productId: { type: string, example: "651234abcde12345fgh67890" }
+ *               productId:
+ *                 type: string
+ *                 example: "651234abcde12345fgh67890"
  *     responses:
- *       201: { description: Product added to wishlist }
- *       500: { description: Server error }
+ *       201:
+ *         description: Product added to wishlist
+ *       500:
+ *         description: Server error
  */
 router.post("/:userId", WishlistController.addToWishlist);
 
@@ -48,13 +67,16 @@ router.post("/:userId", WishlistController.addToWishlist);
  * @openapi
  * /wishlist/{userId}/remove:
  *   put:
+ *     tags: [Wishlist]
  *     summary: Remove product from wishlist
  *     description: Remove a product from the user's wishlist
  *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
- *         schema: { type: string, example: "66f1c6c0e4b6b6d2c1b2a345" }
+ *         schema:
+ *           type: string
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
  *     requestBody:
  *       required: true
  *       content:
@@ -62,10 +84,14 @@ router.post("/:userId", WishlistController.addToWishlist);
  *           schema:
  *             type: object
  *             properties:
- *               productId: { type: string, example: "651234abcde12345fgh67890" }
+ *               productId:
+ *                 type: string
+ *                 example: "651234abcde12345fgh67890"
  *     responses:
- *       200: { description: Product removed from wishlist }
- *       404: { description: Wishlist not found }
+ *       200:
+ *         description: Product removed from wishlist
+ *       404:
+ *         description: Wishlist not found
  */
 router.put("/:userId/remove", WishlistController.removeFromWishlist);
 
@@ -73,16 +99,21 @@ router.put("/:userId/remove", WishlistController.removeFromWishlist);
  * @openapi
  * /wishlist/{userId}:
  *   delete:
+ *     tags: [Wishlist]
  *     summary: Delete wishlist
  *     description: Delete the entire wishlist of a user
  *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
- *         schema: { type: string, example: "66f1c6c0e4b6b6d2c1b2a345" }
+ *         schema:
+ *           type: string
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
  *     responses:
- *       200: { description: Wishlist deleted successfully }
- *       404: { description: Wishlist not found }
+ *       200:
+ *         description: Wishlist deleted successfully
+ *       404:
+ *         description: Wishlist not found
  */
 router.delete("/:userId", WishlistController.deleteWishlist);
 
