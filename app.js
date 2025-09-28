@@ -17,7 +17,7 @@ const swaggerJsDoc = require("swagger-jsdoc");
 const productRoutes = require("./routes/productRoute");
 const brandRoutes = require("./routes/brandRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
-
+const vendorRoutes = require("./routes/vendorRoute");
 
 
 
@@ -48,7 +48,7 @@ app.use(cors())
 app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
-
+app.use("/vendors", vendorRoutes);
 
 
 
