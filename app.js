@@ -18,6 +18,8 @@ const productRoutes = require("./routes/productRoute");
 const brandRoutes = require("./routes/brandRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
 const vendorRoutes = require("./routes/vendorRoute");
+const userRoute = require("./routes/userRoute");
+const adminRoutes = require("./routes/adminRoute");
 
 
 
@@ -49,6 +51,9 @@ app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
 app.use("/vendors", vendorRoutes);
+app.use("/auth",userRoute);
+app.use("/admin", adminRoutes);
+
 
 
 
@@ -63,19 +68,36 @@ app.use("/vendors", vendorRoutes);
 
 // =======swagger-setup========
 const swaggerOptions = swaggerJsDoc({
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Final Project swagger API",
-            version: "1.0.0",
-        },
-        servers: [{
-            url: process.env.swaggerURL
-        }],
-
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Final Project swagger API",
+      version: "1.0.0",
+      description: "API documentation for Final Project",
     },
-    apis: ["./app.js", "./routes/*.js"]
-})
+    servers: [
+      {
+        url: process.env.swaggerURL,
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./app.js", "./routes/*.js"],
+});
+
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOptions));

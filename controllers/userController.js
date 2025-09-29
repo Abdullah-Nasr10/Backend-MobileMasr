@@ -41,4 +41,94 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+// =============== login User ===============
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "Email and password required" });
+
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+
+    const token = user.generateAuthToken(user._id);
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role ,message:"Uers Login"} });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+// ===================Get profile===================
+const getProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+
+// ==================Update profile======================
+const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const { name, email, phone, address } = req.body;
+
+    if (email && email !== user.email) {
+      const emailTaken = await User.findOne({ email });
+      if (emailTaken) return res.status(400).json({ message: "Email already in use" });
+      user.email = email;
+    }
+    if (phone && phone !== user.phone) {
+      const phoneTaken = await User.findOne({ phone });
+      if (phoneTaken) return res.status(400).json({ message: "Phone already in use" });
+      user.phone = phone;
+    }
+
+    user.name = name || user.name;
+    user.address = address || user.address;
+
+    await user.save();
+    res.json({ message: "Profile updated", user: { id: user._id, name: user.name, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+
+// =============== Change password (logged in) ===============
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) return res.status(400).json({ message: "Old and new password required" });
+
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) return res.status(401).json({ message: "Old password incorrect" });
+
+    user.password = newPassword;
+    await user.save();
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+module.exports = { 
+  registerUser,
+  loginUser,
+  getProfile,
+  updateProfile,
+  changePassword
+};
