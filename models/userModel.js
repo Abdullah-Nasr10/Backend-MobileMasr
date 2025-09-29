@@ -95,3 +95,4 @@ userSchema.virtual("profile").get(function () {
 });
 
 module.exports = mongoose.model("User", userSchema);
+
