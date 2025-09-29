@@ -18,6 +18,7 @@ const productRoutes = require("./routes/productRoute");
 const brandRoutes = require("./routes/brandRoute");
 const wishlistRoute = require("./routes/wishlistRoute");
 const vendorRoutes = require("./routes/vendorRoute");
+const registerRoute = require("./routes/userRoute");
 
 
 
@@ -49,6 +50,7 @@ app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
 app.use("/vendors", vendorRoutes);
+app.use("/",registerRoute);
 
 
 
