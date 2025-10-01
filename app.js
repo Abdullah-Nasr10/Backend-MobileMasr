@@ -20,7 +20,7 @@ const wishlistRoute = require("./routes/wishlistRoute");
 const vendorRoutes = require("./routes/vendorRoute");
 const userRoute = require("./routes/userRoute");
 const adminRoutes = require("./routes/adminRoute");
-
+const categoryRoutes = require("./routes/categoryRoute");
 
 
 
@@ -51,9 +51,9 @@ app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
 app.use("/vendors", vendorRoutes);
-app.use("/auth",userRoute);
+app.use("/auth", userRoute);
 app.use("/admin", adminRoutes);
-
+app.use("/categories", categoryRoutes);
 
 
 
@@ -111,13 +111,13 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerOptions));
 
 
 mongoose.connection.once("open", () => {
-    console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+  console.log("Connected to MongoDB");
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
 mongoose.connection.on("error", (err) => {
-    console.log(err);
+  console.log(err);
 });
 
 
