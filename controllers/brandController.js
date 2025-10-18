@@ -58,7 +58,7 @@ const updateBrand = async (req, res) => {
         const updatedBrand = await Brand.findByIdAndUpdate(
             req.params.id,
             { name, image },
-            { new: true, runValidators: true } // new => يرجع النسخة الجديدة بعد التعديل
+            { new: true, runValidators: true } 
         );
 
         if (!updatedBrand) {
