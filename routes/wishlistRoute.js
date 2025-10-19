@@ -93,7 +93,8 @@ router.post("/:userId", WishlistController.addToWishlist);
  *       404:
  *         description: Wishlist not found
  */
-router.put("/:userId/remove", WishlistController.removeFromWishlist);
+router.delete("/wishlist/:userId/remove", WishlistController.removeFromWishlist);
+
 
 /**
  * @openapi

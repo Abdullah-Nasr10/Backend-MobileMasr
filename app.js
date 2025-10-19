@@ -21,6 +21,7 @@ const vendorRoutes = require("./routes/vendorRoute");
 const userRoute = require("./routes/userRoute");
 const adminRoutes = require("./routes/adminRoute");
 const categoryRoutes = require("./routes/categoryRoute");
+const cartRoutes = require("./routes/cartRoute");
 
 
 
@@ -54,6 +55,7 @@ app.use("/vendors", vendorRoutes);
 app.use("/auth", userRoute);
 app.use("/admin", adminRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/cart", cartRoutes);
 
 
 
