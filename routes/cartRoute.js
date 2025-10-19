@@ -2,12 +2,24 @@ const express = require("express");
 const router = express.Router();
 const { protect } = require("../middleware/authenticatMiddle");
 const cartController = require("../controllers/cartController");
+const orderController = require("../controllers/orderController");
+const Cart = require("../models/cartModel");
 
 /**
  * @swagger
  * tags:
  *   name: Cart
- *   description: Cart management
+ *   description: Cart management & checkout system
+ */
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  */
 
 /**
@@ -21,6 +33,8 @@ const cartController = require("../controllers/cartController");
  *     responses:
  *       200:
  *         description: User's cart retrieved successfully
+ *       404:
+ *         description: Cart not found
  */
 router.get("/", protect, cartController.getCart);
 
@@ -41,11 +55,15 @@ router.get("/", protect, cartController.getCart);
  *             properties:
  *               productId:
  *                 type: string
+ *                 description: ID of the product
  *               quantity:
  *                 type: number
+ *                 description: Quantity of the product
  *     responses:
  *       201:
  *         description: Product added to cart
+ *       404:
+ *         description: Product not found
  */
 router.post("/add", protect, cartController.addToCart);
 
@@ -71,6 +89,8 @@ router.post("/add", protect, cartController.addToCart);
  *     responses:
  *       200:
  *         description: Quantity updated successfully
+ *       404:
+ *         description: Cart or product not found
  */
 router.put("/update", protect, cartController.updateQuantity);
 
@@ -94,6 +114,8 @@ router.put("/update", protect, cartController.updateQuantity);
  *     responses:
  *       200:
  *         description: Product removed from cart
+ *       404:
+ *         description: Cart or product not found
  */
 router.put("/remove", protect, cartController.removeFromCart);
 
@@ -108,7 +130,46 @@ router.put("/remove", protect, cartController.removeFromCart);
  *     responses:
  *       200:
  *         description: Cart cleared successfully
+ *       404:
+ *         description: Cart not found
  */
 router.delete("/clear", protect, cartController.clearCart);
+
+/**
+ * @swagger
+ * /cart/checkout:
+ *   post:
+ *     summary: Create an order from the user's cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Order created successfully from cart
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/checkout", protect, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(404).json({ message: "Cart is empty or not found" });
+    }
+
+    // تحويل الكارت إلى أوردر
+    await orderController.createOrder(
+      {
+        body: { cartId: cart._id, userId: req.user._id }
+      },
+      res
+    );
+  } catch (error) {
+    console.error("Checkout Error:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+});
 
 module.exports = router;
