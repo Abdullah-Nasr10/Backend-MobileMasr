@@ -23,6 +23,6 @@ const ProductSchema = new mongoose.Schema({
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
     vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
     date: { type: Date, default: Date.now }
-});
+}, { versionKey: false });
 
 module.exports = mongoose.model("Product", ProductSchema);
