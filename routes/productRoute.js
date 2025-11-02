@@ -16,9 +16,16 @@ const productController = require("../controllers/productController");
  *     Product:
  *       type: object
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: MongoDB document ObjectId
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
+ *           readOnly: true
  *         id:
  *           type: string
+ *           description: Convenience string alias of _id (virtual)
  *           example: "66f1c6c0e4b6b6d2c1b2a345"
+ *           readOnly: true
  *         name:
  *           type: string
  *           example: "iPhone 15 Pro Max"
@@ -28,6 +35,11 @@ const productController = require("../controllers/productController");
  *         discount:
  *           type: number
  *           example: 10
+ *         priceAfterDiscount:
+ *           type: number
+ *           example: 1080
+ *           description: "Automatically calculated based on price and discount"
+ *           readOnly: true
  *         skuCode:
  *           type: string
  *           example: "IPH15PMX-256GB-BLK"

@@ -23,6 +23,15 @@ const ProductSchema = new mongoose.Schema({
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
     vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
     date: { type: Date, default: Date.now }
-}, { versionKey: false });
+}, {
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Virtual property to calculate priceAfterDiscount automatically
+ProductSchema.virtual('priceAfterDiscount').get(function () {
+    return this.price - (this.price * this.discount / 100);
+});
 
 module.exports = mongoose.model("Product", ProductSchema);
