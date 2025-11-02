@@ -17,8 +17,10 @@ exports.createProduct = async (req, res) => {
 
 // ========== Get All Products ==========
 exports.getProducts = async (req, res) => {
+
     try {
-        const products = await Product.find()
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const products = await Product.find().limit(10).skip((page - 1) * 10)
             .populate("category")
             .populate("brand")
             .populate("vendor");
