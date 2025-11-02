@@ -19,7 +19,7 @@ router.delete("/reviews/:id", protect, admin, deleteReview);
 
 /**
  * @swagger
- * /api/products/{id}/reviews:
+ * /reviews/products/{id}/reviews:
  *   post:
  *     summary: Add a new review to a product
  *     tags: [Reviews]
@@ -95,7 +95,7 @@ router.delete("/reviews/:id", protect, admin, deleteReview);
 
 /**
  * @swagger
- * /api/reviews/{id}:
+ * /reviews/reviews/{id}:
  *   delete:
  *     summary: Delete a review (Admin only)
  *     tags: [Reviews]
