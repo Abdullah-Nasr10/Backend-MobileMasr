@@ -3,9 +3,9 @@ const { addSiteReview, getSiteReviews, deleteSiteReview } = require("../controll
 const { protect } = require("../middleware/authenticatMiddle");
 const router = express.Router();
 
-router.post("/site-reviews", protect, addSiteReview);
-router.get("/site-reviews", getSiteReviews);
-router.delete("/site-reviews/:id", protect, deleteSiteReview);
+router.post("/", protect, addSiteReview);
+router.get("/", getSiteReviews);
+router.delete("/:id", protect, deleteSiteReview);
 
 
 /**
@@ -17,13 +17,48 @@ router.delete("/site-reviews/:id", protect, deleteSiteReview);
 
 /**
  * @swagger
- * /reviews/site-reviews:
+ * components:
+ *   schemas:
+ *     SiteReview:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: "66f1c6c0e4b6b6d2c1b2a345"
+ *           readOnly: true
+ *         user:
+ *           type: object
+ *           description: User who posted the review (populated)
+ *           readOnly: true
+ *         rating:
+ *           type: number
+ *           example: 5
+ *         comment:
+ *           type: string
+ *           example: "Excellent service and fast delivery!"
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           readOnly: true
+ *       required:
+ *         - rating
+ */
+
+/**
+ * @swagger
+ * /reviews:
  *   get:
  *     summary: Get all site reviews
  *     tags: [Site Reviews]
  *     responses:
  *       200:
  *         description: List of all reviews
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/SiteReview'
  *   post:
  *     summary: Add a new site review
  *     tags: [Site Reviews]
@@ -34,19 +69,19 @@ router.delete("/site-reviews/:id", protect, deleteSiteReview);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               rating:
- *                 type: number
- *                 example: 5
- *               comment:
- *                 type: string
- *                 example: Excellent service and fast delivery!
+ *             $ref: '#/components/schemas/SiteReview'
  *     responses:
  *       201:
  *         description: Review added successfully
- *
- * /reviews/site-reviews/{id}:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SiteReview'
+ */
+
+/**
+ * @swagger
+ * /reviews/{id}:
  *   delete:
  *     summary: Delete a site review (Admin or Owner only)
  *     tags: [Site Reviews]
