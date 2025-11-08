@@ -19,11 +19,21 @@ exports.createProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
 
     try {
-        const page = req.query.page ? parseInt(req.query.page) : 1;
-        const products = await Product.find().limit(10).skip((page - 1) * 10)
+        const pageParam = req.query.page;
+        // Base query with populates
+        const baseQuery = Product.find()
             .populate("category")
             .populate("brand")
             .populate("vendor");
+
+        let products;
+        // If page is not provided, return all products
+        if (typeof pageParam === 'undefined') {
+            products = await baseQuery;
+        } else {
+            const page = Math.max(1, parseInt(pageParam) || 1);
+            products = await baseQuery.limit(20).skip((page - 1) * 20);
+        }
 
         res.status(200).json({ success: true, data: products });
     } catch (error) {

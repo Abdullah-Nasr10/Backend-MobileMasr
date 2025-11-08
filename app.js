@@ -23,7 +23,6 @@ const adminRoutes = require("./routes/adminRoute");
 const categoryRoutes = require("./routes/categoryRoute");
 const cartRoutes = require("./routes/cartRoute");
 const orderRoutes = require("./routes/orderRoute");
-const reviewRoutes = require("./routes/reviewRoute");
 const siteReviewRoutes = require("./routes/siteReviewRoutes");
 
 
@@ -59,8 +58,7 @@ app.use("/auth", userRoute);
 app.use("/admin", adminRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/cart", cartRoutes);
-app.use("/orders",orderRoutes );
-app.use("/reviews", reviewRoutes);
+app.use("/orders", orderRoutes);
 app.use("/reviews", siteReviewRoutes);
 
 
