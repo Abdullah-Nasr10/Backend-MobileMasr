@@ -32,7 +32,7 @@ exports.getProducts = async (req, res) => {
             products = await baseQuery;
         } else {
             const page = Math.max(1, parseInt(pageParam) || 1);
-            products = await baseQuery.limit(20).skip((page - 1) * 20);
+            products = await baseQuery.limit(15).skip((page - 1) * 15);
         }
 
         res.status(200).json({ success: true, data: products });
