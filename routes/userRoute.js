@@ -4,7 +4,8 @@ const {
   loginUser,
   changePassword,
   getProfile,
-  updateProfile
+  updateProfile,
+  googleLogin,
 } = require("../controllers/userController");
 const { protect } = require("../middleware/authenticatMiddle");
 
@@ -15,6 +16,8 @@ router.post("/login", loginUser);
 router.get("/profile", protect, getProfile);
 router.put("/profile", protect, updateProfile);
 router.put("/change-password", protect, changePassword);
+router.post("/google-login", googleLogin);
+
 
 /**
  * @swagger
@@ -170,6 +173,55 @@ router.put("/change-password", protect, changePassword);
  *       401:
  *         description: Unauthorized
  */
+
+/**
+ * @swagger
+ * /auth/google-login:
+ *   post:
+ *     summary: Login or register user with Google
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Google ID token from client
+ *                 example: "eyJhbGciOiJSUzI1NiIsImtpZCI6Ij..."
+ *     responses:
+ *       200:
+ *         description: Google login successful, returns JWT token and user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Google login successful"
+ *                 token:
+ *                   type: string
+ *                   description: JWT token for authentication
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     picture:
+ *                       type: string
+ */
+
 
 
 
