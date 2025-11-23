@@ -9,6 +9,11 @@ const ProductSchema = new mongoose.Schema({
     condition: { type: String, enum: ["new", "used"], default: "new" },
     storage: { type: String },
     ram: [{ type: String }],
+    // Optional laptop/PC specific fields
+    processor: { type: String },
+    gpu: { type: String },
+    hdd: { type: String },
+    ssd: { type: String },
     color: { type: String },
     batteryCapacity: { type: String },
     simCard: { type: String },

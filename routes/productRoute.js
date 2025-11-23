@@ -76,6 +76,22 @@ const productController = require("../controllers/productController");
  *         weight:
  *           type: string
  *           example: "230g"
+ *         processor:
+ *           type: string
+ *           description: CPU model (optional, useful for laptops/PCs)
+ *           example: "Apple M4 Max"
+ *         gpu:
+ *           type: string
+ *           description: GPU model (optional)
+ *           example: "Apple M4 Max"
+ *         hdd:
+ *           type: string
+ *           description: HDD capacity or "NA" if not present
+ *           example: "NA"
+ *         ssd:
+ *           type: string
+ *           description: SSD capacity (optional)
+ *           example: "1000GB"
  *         accessories:
  *           type: array
  *           items:
