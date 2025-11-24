@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const vendorController = require("../controllers/vendorController");
+const { protect, admin } = require("../middleware/authenticatMiddle");
 
 
 /**
@@ -213,7 +214,7 @@ router.get("/:id", vendorController.getVendorById);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.post("/", vendorController.createVendor);
+router.post("/", protect, admin, vendorController.createVendor);
 
 /**
  * @swagger
@@ -281,7 +282,7 @@ router.post("/", vendorController.createVendor);
  *       404:
  *         description: Vendor not found
  */
-router.put("/:id", vendorController.updateVendor);
+router.put("/:id", protect, admin, vendorController.updateVendor);
 
 /**
  * @swagger
@@ -320,6 +321,6 @@ router.put("/:id", vendorController.updateVendor);
  *       500:
  *         description: Server error
  */
-router.delete("/:id", vendorController.deleteVendor);
+router.delete("/:id", protect, admin, vendorController.deleteVendor);
 
 module.exports = router;

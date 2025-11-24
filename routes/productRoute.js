@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
+const { protect, admin } = require("../middleware/authenticatMiddle");
 
 /**
  * @openapi
@@ -142,7 +143,7 @@ const productController = require("../controllers/productController");
  *       400:
  *         description: Invalid data
  */
-router.post("/", productController.createProduct);
+router.post("/", protect, admin, productController.createProduct);
 
 /**
  * @openapi
@@ -215,7 +216,7 @@ router.get("/:id", productController.getProductById);
  *       404:
  *         description: Product not found
  */
-router.put("/:id", productController.updateProduct);
+router.put("/:id", protect, admin, productController.updateProduct);
 
 /**
  * @openapi
@@ -236,7 +237,7 @@ router.put("/:id", productController.updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete("/:id", productController.deleteProduct);
+router.delete("/:id", protect, admin, productController.deleteProduct);
 
 module.exports = router;
 
