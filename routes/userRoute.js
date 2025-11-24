@@ -1,5 +1,5 @@
 const express = require("express");
-const { 
+const {
   registerUser,
   loginUser,
   changePassword,
@@ -17,6 +17,10 @@ router.get("/profile", protect, getProfile);
 router.put("/profile", protect, updateProfile);
 router.put("/change-password", protect, changePassword);
 router.post("/google-login", googleLogin);
+// Token check endpoint: returns 200 + user when token is valid
+router.get("/check", protect, (req, res) => {
+  return res.status(200).json({ success: true, user: req.user });
+});
 
 
 /**
@@ -111,6 +115,29 @@ router.post("/google-login", googleLogin);
  *         description: User profile data
  *       401:
  *         description: Unauthorized
+ *
+ * /auth/check:
+ *   get:
+ *     summary: Verify token and return user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token valid — returns user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 user:
+ *                   type: object
+ *                   description: Authenticated user object (password omitted)
+ *       401:
+ *         description: Invalid or missing token
  */
 
 /**
