@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const WishlistController = require("../controllers/wishlistController");
+const { protect } = require("../middleware/authenticatMiddle");
 
 /**
  * @openapi
@@ -29,7 +30,7 @@ const WishlistController = require("../controllers/wishlistController");
  *       404:
  *         description: Wishlist not found
  */
-router.get("/:userId", WishlistController.getWishlist);
+router.get("/:userId", protect, WishlistController.getWishlist);
 
 /**
  * @openapi
@@ -61,7 +62,7 @@ router.get("/:userId", WishlistController.getWishlist);
  *       500:
  *         description: Server error
  */
-router.post("/:userId", WishlistController.addToWishlist);
+router.post("/:userId", protect, WishlistController.addToWishlist);
 
 /**
  * @openapi
@@ -93,7 +94,7 @@ router.post("/:userId", WishlistController.addToWishlist);
  *       404:
  *         description: Wishlist not found
  */
-router.delete("/wishlist/:userId/remove", WishlistController.removeFromWishlist);
+router.delete("/wishlist/:userId/remove", protect, WishlistController.removeFromWishlist);
 
 
 /**
@@ -116,6 +117,6 @@ router.delete("/wishlist/:userId/remove", WishlistController.removeFromWishlist)
  *       404:
  *         description: Wishlist not found
  */
-router.delete("/:userId", WishlistController.deleteWishlist);
+router.delete("/:userId", protect, WishlistController.deleteWishlist);
 
 module.exports = router;
