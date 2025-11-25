@@ -94,7 +94,7 @@ router.post("/:userId", protect, WishlistController.addToWishlist);
  *       404:
  *         description: Wishlist not found
  */
-router.delete("/wishlist/:userId/remove", protect, WishlistController.removeFromWishlist);
+router.delete("/:userId/remove", protect, WishlistController.removeFromWishlist);
 
 
 /**
