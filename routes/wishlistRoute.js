@@ -30,7 +30,7 @@ const { protect } = require("../middleware/authenticatMiddle");
  *       404:
  *         description: Wishlist not found
  */
-router.get("/:userId", protect, WishlistController.getWishlist);
+router.get("/", protect, WishlistController.getWishlist);
 
 /**
  * @openapi
@@ -62,7 +62,7 @@ router.get("/:userId", protect, WishlistController.getWishlist);
  *       500:
  *         description: Server error
  */
-router.post("/:userId", protect, WishlistController.addToWishlist);
+router.post("/", protect, WishlistController.addToWishlist);
 
 /**
  * @openapi
@@ -94,7 +94,7 @@ router.post("/:userId", protect, WishlistController.addToWishlist);
  *       404:
  *         description: Wishlist not found
  */
-router.delete("/:userId/remove", protect, WishlistController.removeFromWishlist);
+router.delete("/remove", protect, WishlistController.removeFromWishlist);
 
 
 /**
@@ -117,6 +117,6 @@ router.delete("/:userId/remove", protect, WishlistController.removeFromWishlist)
  *       404:
  *         description: Wishlist not found
  */
-router.delete("/:userId", protect, WishlistController.deleteWishlist);
+router.delete("/", protect, WishlistController.deleteWishlist);
 
 module.exports = router;
