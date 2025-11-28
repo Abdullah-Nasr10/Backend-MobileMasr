@@ -9,6 +9,8 @@ const ProductSchema = new mongoose.Schema({
     condition: { type: String, enum: ["new", "used"], default: "new" },
     storage: { type: String },
     ram: [{ type: String }],
+    // Inventory count for simple use-cases
+    stock: { type: Number, default: 0, min: 0 },
     // Optional laptop/PC specific fields
     processor: { type: String },
     gpu: { type: String },

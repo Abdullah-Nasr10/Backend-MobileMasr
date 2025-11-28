@@ -59,6 +59,10 @@ const { protect, admin } = require("../middleware/authenticatMiddle");
  *           items:
  *             type: string
  *           example: ["8GB"]
+ *         stock:
+ *           type: integer
+ *           description: Number of items available in inventory
+ *           example: 25
  *         color:
  *           type: string
  *           example: "Black"
