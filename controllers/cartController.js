@@ -29,11 +29,12 @@ exports.addToCart = async (req, res) => {
       // Increment quantity if already exists
       existingItem.quantity += quantity || 1;
     } else {
-      // Add new product to cart
+      // Add new product to cart with priceAfterDiscount
+      const priceAfterDiscount = product.price - (product.price * product.discount / 100);
       cart.items.push({
         product: productId,
         quantity: quantity || 1,
-        price: product.price,
+        price: priceAfterDiscount,
       });
     }
 

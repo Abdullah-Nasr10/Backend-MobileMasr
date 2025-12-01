@@ -36,7 +36,7 @@ const CartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Order"
   },
-//=========================================================================
+  //=========================================================================
   createdAt: {
     type: Date,
     default: Date.now
@@ -47,7 +47,7 @@ const CartSchema = new mongoose.Schema({
   }
 });
 
-// تحديث السعر قبل الحفظ
+// تحديث السعر قبل الحفظ - يستخدم السعر بعد الخصم المحفوظ في price
 CartSchema.pre("save", function (next) {
   this.totalPrice = this.items.reduce(
     (acc, item) => acc + item.price * item.quantity,
