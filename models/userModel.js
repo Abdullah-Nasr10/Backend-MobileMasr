@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
     phone: {
       type: String,
       match: [/^01[0-9]{9}$/, "Phone must be a valid Egyptian number"],
@@ -99,6 +103,7 @@ userSchema.virtual("profile").get(function () {
     email: this.email,
     phone: this.phone,
     role: this.role,
+    profilePicture: this.profilePicture,
   };
 });
 
