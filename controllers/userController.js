@@ -7,33 +7,56 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // =============== Google Login ===============
 const googleLogin = async (req, res) => {
   try {
-    const { token } = req.body; // token from client side
-    if (!token)
-      return res.status(400).json({ message: "Google token is required" });
+    const { token, googleId, email, name, profilePicture } = req.body;
+    
+    // Handle both token-based (old) and direct data (new) approaches
+    let userData;
+    
+    if (token) {
+      // Token-based approach
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      userData = {
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+        googleId: payload.sub
+      };
+    } else if (googleId && email && name) {
+      // Direct data approach (from useGoogleLogin)
+      userData = {
+        email,
+        name,
+        picture: profilePicture,
+        googleId
+      };
+    } else {
+      return res.status(400).json({ message: "Invalid Google authentication data" });
+    }
 
-    //بجيب البيانات من جوجل
-    const ticket = await googleClient.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const { email, name, picture, sub: googleId } = payload;
+    const { email: userEmail, name: userName, picture, googleId: userGoogleId } = userData;
 
     // find user by email OR by googleId
-    let user = await User.findOne({ $or: [{ email }, { googleId }] }).select(
+    let user = await User.findOne({ $or: [{ email: userEmail }, { googleId: userGoogleId }] }).select(
       "+password"
     );
 
     if (!user) {
       // create new user (no password)
       user = await User.create({
-        name,
-        email,
-        googleId,
+        name: userName,
+        email: userEmail,
+        googleId: userGoogleId,
+        profilePicture: picture,
       });
     } else if (!user.googleId) {
-      user.googleId = googleId;
+      user.googleId = userGoogleId;
+      if (picture && !user.profilePicture) {
+        user.profilePicture = picture;
+      }
       await user.save();
     }
 
@@ -52,7 +75,7 @@ const googleLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        picture,
+        profilePicture: user.profilePicture || picture,
       },
     });
   } catch (err) {
@@ -147,6 +170,7 @@ const getProfile = async (req, res) => {
       email: user.email,
       phone: user.phone,
       role: user.role,
+      profilePicture: user.profilePicture,
     });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
