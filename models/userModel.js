@@ -76,9 +76,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
 // Generate JWT
 userSchema.methods.generateAuthToken = function () {
-  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET);
 };
 
 // Password reset
