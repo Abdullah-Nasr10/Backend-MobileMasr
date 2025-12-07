@@ -24,6 +24,7 @@ const categoryRoutes = require("./routes/categoryRoute");
 const cartRoutes = require("./routes/cartRoute");
 const orderRoutes = require("./routes/orderRoute");
 const siteReviewRoutes = require("./routes/siteReviewRoutes");
+const stripeRoutes = require("./routes/stripeRoutes");
 
 
 
@@ -41,6 +42,9 @@ connectDB();
 
 
 //==============Middleware===============
+// Webhook route MUST be before express.json() to receive raw body
+app.post("/stripe/webhook", express.raw({ type: 'application/json' }), require("./controllers/stripeController").webhookHandler);
+
 app.use(express.json());
 app.use(cors())
 
@@ -60,7 +64,7 @@ app.use("/categories", categoryRoutes);
 app.use("/cart", cartRoutes);
 app.use("/orders", orderRoutes);
 app.use("/reviews", siteReviewRoutes);
-
+app.use("/stripe", stripeRoutes);
 
 
 
