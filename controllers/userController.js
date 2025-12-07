@@ -183,30 +183,38 @@ const updateProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { name, email, phone, address } = req.body;
+    const { name, phone, address } = req.body;
 
-    if (email && email !== user.email) {
-      const emailTaken = await User.findOne({ email });
-      if (emailTaken)
-        return res.status(400).json({ message: "Email already in use" });
-      user.email = email;
-    }
+    // Check if phone is taken by another user
     if (phone && phone !== user.phone) {
-      const phoneTaken = await User.findOne({ phone });
-      if (phoneTaken)
+      const phoneTaken = await User.findOne({ 
+        phone, 
+        _id: { $ne: user._id } 
+      });
+      if (phoneTaken) {
         return res.status(400).json({ message: "Phone already in use" });
+      }
       user.phone = phone;
     }
 
-    user.name = name || user.name;
-    user.address = address || user.address;
+    // Update name and address
+    if (name) user.name = name;
+    if (address) user.address = address;
 
     await user.save();
+    
     res.json({
-      message: "Profile updated",
-      user: { id: user._id, name: user.name, email: user.email },
+      message: "Profile updated successfully",
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email,
+        phone: user.phone,
+        profilePicture: user.profilePicture
+      },
     });
   } catch (err) {
+    console.error("Update profile error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
