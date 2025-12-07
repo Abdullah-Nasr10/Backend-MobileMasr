@@ -4,31 +4,64 @@ const Cart = require("../models/cartModel");
 //  Create a new order from a cart
 exports.createOrder = async (req, res) => {
   try {
-    const { cartId, userId } = req.body;
+    const userId = req.user._id; // Get user from token (protect middleware)
 
-    // Check if the cart exists
-    const cart = await Cart.findById(cartId).populate("items.product");
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+    const {
+      phone,
+      fullName,
+      governorate,
+      city,
+      street,
+      notes,
+      paymentMethod // "cod" or "online"
+    } = req.body;
+
+    // Find user's cart
+    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(404).json({ message: "Cart is empty" });
     }
 
-    // Create a new order based on the cart
+    // Create order items snapshot (preserve prices at checkout time)
+    const items = cart.items.map(item => ({
+      product: item.product._id,
+      quantity: item.quantity,
+      price: item.price // priceAfterDiscount from cart
+    }));
+
+    const subtotal = cart.totalPrice;
+    const shippingFees = 100; // Fixed shipping fee (or make it dynamic)
+    const totalAmount = subtotal + shippingFees;
+
     const newOrder = new Order({
-      cart: cart._id,
-      user: userId || cart.user, // use userId from request or from cart
-      totalAmount: cart.totalPrice,
-      status: "pending"
+      user: userId,
+      shippingAddress: {
+        fullName,
+        phone,
+        governorate,
+        city,
+        street,
+        notes,
+      },
+      paymentMethod,
+      paymentStatus: paymentMethod === "cod" ? "pending" : "pending",
+      items,
+      subtotal,
+      shippingFees,
+      totalAmount,
+      orderStatus: "pending",
     });
 
     await newOrder.save();
 
-    // Optionally link the order to the cart
-    cart.order = newOrder._id;
+    // Clear cart after order creation
+    cart.items = [];
     await cart.save();
 
     res.status(201).json({
       message: "Order created successfully",
-      order: newOrder
+      order: newOrder,
     });
   } catch (error) {
     console.error("Error creating order:", error);
@@ -70,12 +103,17 @@ exports.getOrderById = async (req, res) => {
 //  Update order status
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { orderStatus, paymentStatus } = req.body;
+
+    // Prepare update object
+    const updateData = {};
+    if (orderStatus) updateData.orderStatus = orderStatus;
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
 
     // Update the order's status and return the updated document
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      { status },
+      updateData,
       { new: true }
     );
 

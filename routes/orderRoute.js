@@ -1,6 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orderController");
+const { protect } = require("../middleware/authenticatMiddle");
+
+// ==================== Routes ====================
+router.post("/", protect, orderController.createOrder);
+router.get("/", protect, orderController.getAllOrders);
+router.get("/:id", protect, orderController.getOrderById);
+router.put("/:id", protect, orderController.updateOrderStatus);
+router.delete("/:id", protect, orderController.deleteOrder);
+
+module.exports = router;
+
+// ==================== Swagger Documentation ====================
 
 /**
  * @swagger
@@ -13,28 +25,54 @@ const orderController = require("../controllers/orderController");
  * @swagger
  * /orders:
  *   post:
- *     summary: Create a new order from a cart
+ *     summary: Create a new order from cart
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - fullName
+ *               - phone
+ *               - governorate
+ *               - city
+ *               - street
+ *               - paymentMethod
  *             properties:
- *               cartId:
+ *               fullName:
  *                 type: string
- *                 example: "67140dc76464e2544c0b6d9a"
- *               userId:
+ *                 example: "Ahmed Mohamed"
+ *               phone:
  *                 type: string
- *                 example: "67140dc76464e2544c0b6d8f"
+ *                 example: "01012345678"
+ *               governorate:
+ *                 type: string
+ *                 example: "Cairo"
+ *               city:
+ *                 type: string
+ *                 example: "Nasr City"
+ *               street:
+ *                 type: string
+ *                 example: "123 Main Street, Building 5, Apt 10"
+ *               notes:
+ *                 type: string
+ *                 example: "Please call before delivery"
+ *               paymentMethod:
+ *                 type: string
+ *                 enum: ["cod", "online"]
+ *                 example: "cod"
  *     responses:
  *       201:
  *         description: Order created successfully
  *       404:
- *         description: Cart not found
+ *         description: Cart is empty
+ *       401:
+ *         description: Unauthorized
  */
-router.post("/", orderController.createOrder);
 
 /**
  * @swagger
@@ -42,11 +80,14 @@ router.post("/", orderController.createOrder);
  *   get:
  *     summary: Get all orders
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all orders
+ *       401:
+ *         description: Unauthorized
  */
-router.get("/", orderController.getAllOrders);
 
 /**
  * @swagger
@@ -54,6 +95,8 @@ router.get("/", orderController.getAllOrders);
  *   get:
  *     summary: Get order by ID
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -61,13 +104,15 @@ router.get("/", orderController.getAllOrders);
  *         description: Order ID
  *         schema:
  *           type: string
+ *         example: "67140dc76464e2544c0b6d9a"
  *     responses:
  *       200:
  *         description: Order found
  *       404:
  *         description: Order not found
+ *       401:
+ *         description: Unauthorized
  */
-router.get("/:id", orderController.getOrderById);
 
 /**
  * @swagger
@@ -75,6 +120,8 @@ router.get("/:id", orderController.getOrderById);
  *   put:
  *     summary: Update order status
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -82,6 +129,7 @@ router.get("/:id", orderController.getOrderById);
  *         description: Order ID
  *         schema:
  *           type: string
+ *         example: "67140dc76464e2544c0b6d9a"
  *     requestBody:
  *       required: true
  *       content:
@@ -89,16 +137,22 @@ router.get("/:id", orderController.getOrderById);
  *           schema:
  *             type: object
  *             properties:
- *               status:
+ *               orderStatus:
  *                 type: string
+ *                 enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
+ *                 example: "confirmed"
+ *               paymentStatus:
+ *                 type: string
+ *                 enum: ["pending", "paid", "failed", "refunded"]
  *                 example: "paid"
  *     responses:
  *       200:
  *         description: Order updated successfully
  *       404:
  *         description: Order not found
+ *       401:
+ *         description: Unauthorized
  */
-router.put("/:id", orderController.updateOrderStatus);
 
 /**
  * @swagger
@@ -106,6 +160,8 @@ router.put("/:id", orderController.updateOrderStatus);
  *   delete:
  *     summary: Delete an order
  *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -113,12 +169,12 @@ router.put("/:id", orderController.updateOrderStatus);
  *         description: Order ID
  *         schema:
  *           type: string
+ *         example: "67140dc76464e2544c0b6d9a"
  *     responses:
  *       200:
  *         description: Order deleted successfully
  *       404:
  *         description: Order not found
+ *       401:
+ *         description: Unauthorized
  */
-router.delete("/:id", orderController.deleteOrder);
-
-module.exports = router;
