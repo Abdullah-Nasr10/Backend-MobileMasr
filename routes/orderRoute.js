@@ -1,14 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/orderController");
-const { protect } = require("../middleware/authenticatMiddle");
+const { protect, admin } = require("../middleware/authenticatMiddle");
 
 // ==================== Routes ====================
 router.post("/", protect, orderController.createOrder);
-router.get("/", protect, orderController.getAllOrders);
+
+// ⚠️ Specific routes BEFORE dynamic params
+router.get("/admin/all", protect, admin, orderController.getAllOrdersAdmin);
+router.get("/user", protect, orderController.getAllOrdersForUser);
+
+// ⚠️ Dynamic param routes LAST
 router.get("/:id", protect, orderController.getOrderById);
-router.put("/:id", protect, orderController.updateOrderStatus);
-router.delete("/:id", protect, orderController.deleteOrder);
+router.put("/:id", protect, admin, orderController.updateOrderStatus); // Admin only
+router.delete("/:id", protect, admin, orderController.deleteOrder); // Admin only
 
 module.exports = router;
 
@@ -76,15 +81,32 @@ module.exports = router;
 
 /**
  * @swagger
- * /orders:
+ * /orders/admin/all:
  *   get:
- *     summary: Get all orders
+ *     summary: Get all orders (Admin only)
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all orders
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ */
+
+/**
+ * @swagger
+ * /orders/user:
+ *   get:
+ *     summary: Get all orders for logged-in user
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user's orders
  *       401:
  *         description: Unauthorized
  */

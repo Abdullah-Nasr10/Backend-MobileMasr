@@ -1,7 +1,7 @@
 const Order = require("../models/orderModel");
 const Cart = require("../models/cartModel");
 
-//  Create a new order from a cart
+// =================Create a new order from a cart==========================
 exports.createOrder = async (req, res) => {
   try {
     const userId = req.user._id; // Get user from token (protect middleware)
@@ -69,27 +69,45 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-//  Get all orders
-exports.getAllOrders = async (req, res) => {
+//  =========================Get all orders (Admin only)==========================
+exports.getAllOrdersAdmin = async (req, res) => {
   try {
-    // Populate related cart and user data
     const orders = await Order.find()
-      .populate("cart")
-      .populate("user", "name email");
+      .populate("items.product")
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//  Get a single order by ID
+//  =========================Get all orders for logged-in user==========================
+exports.getAllOrdersForUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const orders = await Order.find({ user: userId })
+      .populate("items.product")
+      .sort({ createdAt: -1 });
+
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//  =========================Get a single order by ID==========================
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id)
-      .populate("cart")
-      .populate("user", "name email");
+    const userId = req.user._id;
 
-    // If no order found
+    const order = await Order.findOne({
+      _id: req.params.id,
+      user: userId // Make sure user owns this order
+    }).populate("items.product");
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -100,7 +118,7 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-//  Update order status
+//  =========================Update order status==========================
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, paymentStatus } = req.body;
@@ -127,7 +145,7 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-//  Delete an order
+//  =========================Delete an order==========================
 exports.deleteOrder = async (req, res) => {
   try {
     // Delete order by ID
