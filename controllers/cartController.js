@@ -1,7 +1,7 @@
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
 
-//  Add product to cart (create cart automatically if not exist)
+// ============= Add product to cart (create cart automatically if not exist) ==============
 exports.addToCart = async (req, res) => {
   try {
     const userId = req.user._id; // from protect middleware
@@ -46,18 +46,21 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-//  Get user's cart
+//  ==================== Get user's cart ====================
 exports.getCart = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const cart = await Cart.findOne({ user: userId })
+    let cart = await Cart.findOne({ user: userId })
       .populate("items.product")
       .populate("user", "name email")
-      .populate("order"); // populate order if exists
+      .populate("order");
 
-    if (!cart)
-      return res.status(404).json({ message: "Cart not found" });
+    // إنشاء cart فارغة تلقائياً للمستخدمين الجدد
+    if (!cart) {
+      cart = new Cart({ user: userId, items: [] });
+      await cart.save();
+    }
 
     res.status(200).json(cart);
   } catch (error) {
@@ -66,7 +69,7 @@ exports.getCart = async (req, res) => {
   }
 };
 
-//  Update product quantity in cart
+//  =============== Update product quantity in cart ================
 exports.updateQuantity = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -94,7 +97,7 @@ exports.updateQuantity = async (req, res) => {
   }
 };
 
-//  Remove a product from cart
+//  =============== Remove a product from cart ================
 exports.removeFromCart = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -116,7 +119,7 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-//  Clear all products from cart
+//  =============== Clear all products from cart ================
 exports.clearCart = async (req, res) => {
   try {
     const userId = req.user._id;
