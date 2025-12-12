@@ -1,8 +1,8 @@
-const Order = require("../models/orderModel");
-const Cart = require("../models/cartModel");
+import Order from "../models/orderModel.js";
+import Cart from "../models/cartModel.js";
 
 // =================Create a new order from a cart==========================
-exports.createOrder = async (req, res) => {
+export const createOrder = async (req, res) => {
   try {
     const userId = req.user._id; // Get user from token (protect middleware)
 
@@ -70,7 +70,7 @@ exports.createOrder = async (req, res) => {
 };
 
 //  =========================Get all orders (Admin only)==========================
-exports.getAllOrdersAdmin = async (req, res) => {
+export const getAllOrdersAdmin = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("items.product")
@@ -84,7 +84,7 @@ exports.getAllOrdersAdmin = async (req, res) => {
 };
 
 //  =========================Get all orders for logged-in user==========================
-exports.getAllOrdersForUser = async (req, res) => {
+export const getAllOrdersForUser = async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -99,7 +99,7 @@ exports.getAllOrdersForUser = async (req, res) => {
 };
 
 //  =========================Get a single order by ID==========================
-exports.getOrderById = async (req, res) => {
+export const getOrderById = async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -119,7 +119,7 @@ exports.getOrderById = async (req, res) => {
 };
 
 //  =========================Update order status==========================
-exports.updateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, paymentStatus } = req.body;
 
@@ -146,7 +146,7 @@ exports.updateOrderStatus = async (req, res) => {
 };
 
 //  =========================Delete an order==========================
-exports.deleteOrder = async (req, res) => {
+export const deleteOrder = async (req, res) => {
   try {
     // Delete order by ID
     const order = await Order.findByIdAndDelete(req.params.id);

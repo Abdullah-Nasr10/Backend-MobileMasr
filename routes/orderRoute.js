@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const orderController = require("../controllers/orderController");
-const { protect, admin } = require("../middleware/authenticatMiddle");
+import * as orderController from "../controllers/orderController.js";
+import { protect, admin } from "../middleware/authenticatMiddle.js";
 
 // ==================== Routes ====================
 router.post("/", protect, orderController.createOrder);
@@ -15,7 +15,7 @@ router.get("/:id", protect, orderController.getOrderById);
 router.put("/:id", protect, admin, orderController.updateOrderStatus); // Admin only
 router.delete("/:id", protect, admin, orderController.deleteOrder); // Admin only
 
-module.exports = router;
+export default router;
 
 // ==================== Swagger Documentation ====================
 

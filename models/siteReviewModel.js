@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const siteReviewSchema = mongoose.Schema(
   {
     user: {
@@ -24,4 +24,4 @@ const siteReviewSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("SiteReview", siteReviewSchema);
+export default mongoose.model("SiteReview", siteReviewSchema);

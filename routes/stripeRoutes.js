@@ -1,14 +1,14 @@
 // routes/stripeRoutes.js
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const stripeController = require("../controllers/stripeController");
-const { protect } = require("../middleware/authenticatMiddle");
+import * as stripeController from "../controllers/stripeController.js";
+import { protect } from "../middleware/authenticatMiddle.js";
 
 router.post("/create-checkout-session", protect, stripeController.createCheckoutSession);
 router.get("/verify-session", protect, stripeController.verifySession);
 // Note: webhook route is handled separately in app.js before express.json()
 
-module.exports = router;
+export default router;
 
 /**
  * @swagger

@@ -1,8 +1,8 @@
-const Cart = require("../models/cartModel");
-const Product = require("../models/productModel");
+import Cart from "../models/cartModel.js";
+import Product from "../models/productModel.js";
 
 // ============= Add product to cart (create cart automatically if not exist) ==============
-exports.addToCart = async (req, res) => {
+export const addToCart = async (req, res) => {
   try {
     const userId = req.user._id; // from protect middleware
     const { productId, quantity } = req.body;
@@ -47,7 +47,7 @@ exports.addToCart = async (req, res) => {
 };
 
 //  ==================== Get user's cart ====================
-exports.getCart = async (req, res) => {
+export const getCart = async (req, res) => {
   try {
     const userId = req.user._id;
 
@@ -70,7 +70,7 @@ exports.getCart = async (req, res) => {
 };
 
 //  =============== Update product quantity in cart ================
-exports.updateQuantity = async (req, res) => {
+export const updateQuantity = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId, quantity } = req.body;
@@ -98,7 +98,7 @@ exports.updateQuantity = async (req, res) => {
 };
 
 //  =============== Remove a product from cart ================
-exports.removeFromCart = async (req, res) => {
+export const removeFromCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const { productId } = req.body;
@@ -120,7 +120,7 @@ exports.removeFromCart = async (req, res) => {
 };
 
 //  =============== Clear all products from cart ================
-exports.clearCart = async (req, res) => {
+export const clearCart = async (req, res) => {
   try {
     const userId = req.user._id;
     const cart = await Cart.findOne({ user: userId });

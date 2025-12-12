@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const VendorSchema = new mongoose.Schema({
     name: { type: String, required: [true, "Vendor name is required"], trim: true },
@@ -13,4 +13,4 @@ const VendorSchema = new mongoose.Schema({
     { timestamps: true }
 );
 
-module.exports = mongoose.model("Vendor", VendorSchema);
+export default mongoose.model("Vendor", VendorSchema);

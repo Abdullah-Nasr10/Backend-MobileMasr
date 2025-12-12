@@ -1,5 +1,5 @@
-const express = require("express");
-const BrandControllers = require("../controllers/brandController");
+import express from "express";
+import * as BrandControllers from "../controllers/brandController.js";
 
 const router = express.Router();
 
@@ -132,4 +132,4 @@ router.put("/:id", BrandControllers.updateBrand);
  */
 router.delete("/:id", BrandControllers.deleteBrand);
 
-module.exports = router;
+export default router;

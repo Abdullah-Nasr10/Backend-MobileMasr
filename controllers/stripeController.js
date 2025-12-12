@@ -1,11 +1,15 @@
 // controllers/stripeController.js
-const Stripe = require("stripe");
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const Cart = require("../models/cartModel");
-const Order = require("../models/orderModel");
+// import Stripe from "stripe";
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { getStripe } from "../config/stripeClient.js";
+import Cart from "../models/cartModel.js";
+import Order from "../models/orderModel.js";
 
-exports.createCheckoutSession = async (req, res) => {
+
+export const createCheckoutSession = async (req, res) => {
     try {
+        const stripe = getStripe();
+
         const userId = req.user._id;
         const { shippingAddress } = req.body;
 
@@ -65,8 +69,10 @@ exports.createCheckoutSession = async (req, res) => {
     }
 };
 
-exports.verifySession = async (req, res) => {
+export const verifySession = async (req, res) => {
     try {
+        const stripe = getStripe();
+
         const { session_id } = req.query;
 
         if (!session_id) {
@@ -138,7 +144,8 @@ exports.verifySession = async (req, res) => {
     }
 };
 
-exports.webhookHandler = async (req, res) => {
+export const webhookHandler = async (req, res) => {
+    const stripe = getStripe();
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 

@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const WishlistController = require("../controllers/wishlistController");
-const { protect } = require("../middleware/authenticatMiddle");
+import * as WishlistController from "../controllers/wishlistController.js";
+import { protect } from "../middleware/authenticatMiddle.js";
 
 /**
  * @openapi
@@ -119,4 +119,4 @@ router.delete("/remove", protect, WishlistController.removeFromWishlist);
  */
 router.delete("/", protect, WishlistController.deleteWishlist);
 
-module.exports = router;
+export default router;

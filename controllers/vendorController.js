@@ -1,10 +1,10 @@
-const Vendor = require("../models/vendorModel");
+import Vendor from "../models/vendorModel.js";
 
 
 
 
 // ==================create-Vendor==================
-exports.createVendor = async (req, res) => {
+export const createVendor = async (req, res) => {
     try {
         const vendor = new Vendor(req.body);
         await vendor.save();
@@ -15,7 +15,7 @@ exports.createVendor = async (req, res) => {
 };
 
 // ==================get-All-Vendors==================
-exports.getVendors = async (req, res) => {
+export const getVendors = async (req, res) => {
     try {
         const vendors = await Vendor.find();
         res.status(200).json(vendors);
@@ -25,7 +25,7 @@ exports.getVendors = async (req, res) => {
 };
 
 // ==================get-Vendor-By-Id==================
-exports.getVendorById = async (req, res) => {
+export const getVendorById = async (req, res) => {
     try {
         const vendor = await Vendor.findById(req.params.id);
         if (!vendor) return res.status(404).json({ error: "Vendor not found" });
@@ -36,7 +36,7 @@ exports.getVendorById = async (req, res) => {
 };
 
 // ==================update-Vendor==================
-exports.updateVendor = async (req, res) => {
+export const updateVendor = async (req, res) => {
     try {
         const vendor = await Vendor.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
@@ -50,7 +50,7 @@ exports.updateVendor = async (req, res) => {
 };
 
 // ==================delete-Vendor==================
-exports.deleteVendor = async (req, res) => {
+export const deleteVendor = async (req, res) => {
     try {
         const vendor = await Vendor.findByIdAndDelete(req.params.id);
         if (!vendor) return res.status(404).json({ error: "Vendor not found" });

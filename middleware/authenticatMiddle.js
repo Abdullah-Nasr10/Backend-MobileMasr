@@ -1,7 +1,7 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
+import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer")) {
@@ -19,9 +19,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-const admin = (req, res, next) => {
+export const admin = (req, res, next) => {
   if (req.user && req.user.role === "admin") return next();
   return res.status(403).json({ message: "Require admin role" });
 };
-
-module.exports = { protect, admin };

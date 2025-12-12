@@ -1,30 +1,32 @@
-require("dotenv").config();
-const express = require("express");
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 const app = express();
-const mongoose = require("mongoose");
-const cors = require("cors")
+import mongoose from "mongoose";
+import cors from "cors";
 const PORT = process.env.PORT;
 
 //========import-swagger========
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
+import swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
 
 
 
 
 
 // ================Import-Routes====================
-const productRoutes = require("./routes/productRoute");
-const brandRoutes = require("./routes/brandRoute");
-const wishlistRoute = require("./routes/wishlistRoute");
-const vendorRoutes = require("./routes/vendorRoute");
-const userRoute = require("./routes/userRoute");
-const adminRoutes = require("./routes/adminRoute");
-const categoryRoutes = require("./routes/categoryRoute");
-const cartRoutes = require("./routes/cartRoute");
-const orderRoutes = require("./routes/orderRoute");
-const siteReviewRoutes = require("./routes/siteReviewRoutes");
-const stripeRoutes = require("./routes/stripeRoutes");
+import productRoutes from "./routes/productRoute.js";
+import brandRoutes from "./routes/brandRoute.js";
+import wishlistRoute from "./routes/wishlistRoute.js";
+import vendorRoutes from "./routes/vendorRoute.js";
+import userRoute from "./routes/userRoute.js";
+import adminRoutes from "./routes/adminRoute.js";
+import categoryRoutes from "./routes/categoryRoute.js";
+import cartRoutes from "./routes/cartRoute.js";
+import orderRoutes from "./routes/orderRoute.js";
+import siteReviewRoutes from "./routes/siteReviewRoutes.js";
+import stripeRoutes from "./routes/stripeRoutes.js";
+import { webhookHandler } from "./controllers/stripeController.js";
 
 
 
@@ -37,13 +39,13 @@ const stripeRoutes = require("./routes/stripeRoutes");
 
 
 // ================connectDB=================
-const { connectDB } = require("./config/connectDB");
+import { connectDB } from "./config/connectDB.js";
 connectDB();
 
 
 //==============Middleware===============
 // Webhook route MUST be before express.json() to receive raw body
-app.post("/stripe/webhook", express.raw({ type: 'application/json' }), require("./controllers/stripeController").webhookHandler);
+app.post("/stripe/webhook", express.raw({ type: 'application/json' }), webhookHandler);
 
 app.use(express.json());
 app.use(cors())

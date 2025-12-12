@@ -1,12 +1,12 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   getAllUsers,
   getUserById,
   updateUserByAdmin,
   deleteUserByAdmin,
-} = require("../controllers/adminController");
+} from "../controllers/adminController.js";
 
-const { protect, admin } = require("../middleware/authenticatMiddle");
+import { protect, admin } from "../middleware/authenticatMiddle.js";
 
 const router = express.Router();
 
@@ -144,4 +144,4 @@ router.delete("/users/:id", protect, admin, deleteUserByAdmin);
  *         description: User not found
  */
 
-module.exports = router;
+export default router;

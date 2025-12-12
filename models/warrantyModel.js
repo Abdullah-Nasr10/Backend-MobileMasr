@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const WarrantySchema = new mongoose.Schema({
     type: {
@@ -17,4 +17,4 @@ const WarrantySchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Warranty", WarrantySchema);
+export default mongoose.model("Warranty", WarrantySchema);
