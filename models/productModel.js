@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema({
     name: { type: String, required: [true, "Product name is required"], trim: true },
@@ -41,4 +41,4 @@ ProductSchema.virtual('priceAfterDiscount').get(function () {
     return this.price - (this.price * this.discount / 100);
 });
 
-module.exports = mongoose.model("Product", ProductSchema);
+export default mongoose.model("Product", ProductSchema);

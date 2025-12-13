@@ -1,6 +1,6 @@
-const express = require("express");
-const { addSiteReview, getSiteReviews, deleteSiteReview } = require("../controllers/siteReviewController");
-const { protect } = require("../middleware/authenticatMiddle");
+import express from "express";
+import { addSiteReview, getSiteReviews, deleteSiteReview } from "../controllers/siteReviewController.js";
+import { protect } from "../middleware/authenticatMiddle.js";
 const router = express.Router();
 
 router.post("/", protect, addSiteReview);
@@ -109,4 +109,4 @@ router.delete("/:id", protect, deleteSiteReview);
  *       bearerFormat: JWT
  */
 
-module.exports = router;
+export default router;

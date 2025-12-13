@@ -1,4 +1,4 @@
-const SiteReview = require("../models/siteReviewModel");
+import SiteReview from "../models/siteReviewModel.js";
 
 // add new site review
 const addSiteReview = async (req, res) => {
@@ -46,4 +46,4 @@ const deleteSiteReview = async (req, res) => {
   }
 };
 
-module.exports = { addSiteReview, getSiteReviews, deleteSiteReview };
+export { addSiteReview, getSiteReviews, deleteSiteReview };

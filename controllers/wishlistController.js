@@ -1,9 +1,9 @@
-const Wishlist = require("../models/wishlistModel");
+import Wishlist from "../models/wishlistModel.js";
 
 // =======================================
 //            GET WISHLIST
 // =======================================
-exports.getWishlist = async (req, res) => {
+export const getWishlist = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
 
@@ -30,7 +30,7 @@ exports.getWishlist = async (req, res) => {
 // =======================================
 //            ADD TO WISHLIST
 // =======================================
-exports.addToWishlist = async (req, res) => {
+export const addToWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user._id || req.user.id;
@@ -68,7 +68,7 @@ exports.addToWishlist = async (req, res) => {
 // =======================================
 //         REMOVE FROM WISHLIST
 // =======================================
-exports.removeFromWishlist = async (req, res) => {
+export const removeFromWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user._id || req.user.id;
@@ -99,7 +99,7 @@ exports.removeFromWishlist = async (req, res) => {
 // =======================================
 //         DELETE ALL WISHLIST
 // =======================================
-exports.deleteWishlist = async (req, res) => {
+export const deleteWishlist = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
 

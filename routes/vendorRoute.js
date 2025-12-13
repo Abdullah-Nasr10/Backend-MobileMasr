@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const vendorController = require("../controllers/vendorController");
-const { protect, admin } = require("../middleware/authenticatMiddle");
+import * as vendorController from "../controllers/vendorController.js";
+import { protect, admin } from "../middleware/authenticatMiddle.js";
 
 
 /**
@@ -323,4 +323,4 @@ router.put("/:id", protect, admin, vendorController.updateVendor);
  */
 router.delete("/:id", protect, admin, vendorController.deleteVendor);
 
-module.exports = router;
+export default router;

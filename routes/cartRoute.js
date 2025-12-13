@@ -1,9 +1,9 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { protect } = require("../middleware/authenticatMiddle");
-const cartController = require("../controllers/cartController");
-const orderController = require("../controllers/orderController");
-const Cart = require("../models/cartModel");
+import { protect } from "../middleware/authenticatMiddle.js";
+import * as cartController from "../controllers/cartController.js";
+import * as orderController from "../controllers/orderController.js";
+import Cart from "../models/cartModel.js";
 
 /**
  * @swagger
@@ -172,4 +172,4 @@ router.post("/checkout", protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

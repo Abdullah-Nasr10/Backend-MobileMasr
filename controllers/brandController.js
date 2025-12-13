@@ -1,4 +1,4 @@
-const Brand = require("../models/brandModel");
+import Brand from "../models/brandModel.js";
 
 
 // ===============createBrand===============
@@ -86,7 +86,7 @@ const deleteBrand = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
     getBrands,
     getBrandById,
     createBrand,

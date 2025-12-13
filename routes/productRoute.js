@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const productController = require("../controllers/productController");
-const { protect, admin } = require("../middleware/authenticatMiddle");
+import * as productController from "../controllers/productController.js";
+import { protect, admin } from "../middleware/authenticatMiddle.js";
 
 /**
  * @openapi
@@ -243,7 +243,7 @@ router.put("/:id", protect, admin, productController.updateProduct);
  */
 router.delete("/:id", protect, admin, productController.deleteProduct);
 
-module.exports = router;
+export default router;
 
 
 

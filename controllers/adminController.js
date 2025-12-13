@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+import User from "../models/userModel.js";
 // ========================GET /admin/users=========================
 const getAllUsers = async (req, res) => {
   try {
@@ -75,7 +75,7 @@ const deleteUserByAdmin = async (req, res) => {
 
 
 
-module.exports = {
+export {
   getAllUsers,
   getUserById,
   updateUserByAdmin,
