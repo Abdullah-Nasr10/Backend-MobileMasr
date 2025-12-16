@@ -14,6 +14,17 @@ import { protect, admin } from "../middleware/authenticatMiddle.js";
  * @openapi
  * components:
  *   schemas:
+ *     LocalizedText:
+ *       type: object
+ *       properties:
+ *         en:
+ *           type: string
+ *           description: English text
+ *         ar:
+ *           type: string
+ *           description: Arabic text
+ *       required: [en, ar]
+ *     
  *     Product:
  *       type: object
  *       properties:
@@ -28,8 +39,15 @@ import { protect, admin } from "../middleware/authenticatMiddle.js";
  *           example: "66f1c6c0e4b6b6d2c1b2a345"
  *           readOnly: true
  *         name:
- *           type: string
- *           example: "iPhone 15 Pro Max"
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: string
+ *               example: "iPhone 15 Pro Max"
+ *             ar:
+ *               type: string
+ *               example: "آيفون 15 برو ماكس"
+ *           required: [en, ar]
  *         price:
  *           type: number
  *           example: 1200
@@ -45,12 +63,25 @@ import { protect, admin } from "../middleware/authenticatMiddle.js";
  *           type: string
  *           example: "IPH15PMX-256GB-BLK"
  *         description:
- *           type: string
- *           example: "Latest Apple flagship phone with 256GB storage."
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: string
+ *               example: "Latest Apple flagship phone with 256GB storage."
+ *             ar:
+ *               type: string
+ *               example: "أحدث هاتف رائد من آبل مع سعة 256 جيجابايت."
  *         condition:
- *           type: string
- *           enum: [new, used]
- *           example: "new"
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: string
+ *               enum: [new, used]
+ *               example: "new"
+ *             ar:
+ *               type: string
+ *               enum: ["جديد", "مستعمل"]
+ *               example: "جديد"
  *         storage:
  *           type: string
  *           example: "256GB"
@@ -98,16 +129,36 @@ import { protect, admin } from "../middleware/authenticatMiddle.js";
  *           description: SSD capacity (optional)
  *           example: "1000GB"
  *         accessories:
- *           type: array
- *           items:
- *             type: string
- *           example: ["Charger", "Earbuds"]
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["Charger", "Earbuds"]
+ *             ar:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["شاحن", "سماعات"]
  *         batteryStatus:
- *           type: string
- *           example: "Excellent"
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: string
+ *               example: "Excellent"
+ *             ar:
+ *               type: string
+ *               example: "ممتاز"
  *         guarantee:
- *           type: string
- *           example: "1 Year Official Warranty"
+ *           type: object
+ *           properties:
+ *             en:
+ *               type: string
+ *               example: "1 Year Official Warranty"
+ *             ar:
+ *               type: string
+ *               example: "ضمان رسمي لمدة سنة"
  *         images:
  *           type: array
  *           items:
@@ -155,16 +206,59 @@ router.post("/", protect, admin, productController.createProduct);
  *   get:
  *     tags: [Products]
  *     summary: Get all products
- *     description: Retrieve a list of all available products
+ *     description: Retrieve a list of all available products with optional language localization
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized fields (en for English, ar for Arabic)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
  *     responses:
  *       200:
- *         description: A list of products
+ *         description: A list of localized products
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: "#/components/schemas/Product"
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                         description: Localized product name
+ *                       description:
+ *                         type: string
+ *                         description: Localized description
+ *                       condition:
+ *                         type: string
+ *                         description: Localized condition
+ *                       price:
+ *                         type: number
+ *                       priceAfterDiscount:
+ *                         type: number
+ *                       category:
+ *                         type: string
+ *                         description: Localized category name
+ *                       brand:
+ *                         type: string
+ *                         description: Localized brand name
+ *                 totalPages:
+ *                   type: integer
  *       500:
  *         description: Server error
  */
@@ -176,20 +270,67 @@ router.get("/", productController.getProducts);
  *   get:
  *     tags: [Products]
  *     summary: Get product by ID
- *     description: Retrieve details of a single product
+ *     description: Retrieve details of a single product with optional language localization
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: Product ID
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized fields (en for English, ar for Arabic)
  *     responses:
  *       200:
- *         description: Product details retrieved successfully
+ *         description: Localized product details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/Product"
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                       description: Localized product name
+ *                     description:
+ *                       type: string
+ *                       description: Localized description
+ *                     condition:
+ *                       type: string
+ *                       description: Localized condition
+ *                     accessories:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       description: Localized accessories
+ *                     batteryStatus:
+ *                       type: string
+ *                       description: Localized battery status
+ *                     guarantee:
+ *                       type: string
+ *                       description: Localized guarantee
+ *                     price:
+ *                       type: number
+ *                     priceAfterDiscount:
+ *                       type: number
+ *                     category:
+ *                       type: string
+ *                       description: Localized category name
+ *                     brand:
+ *                       type: string
+ *                       description: Localized brand name
  *       404:
  *         description: Product not found
  */

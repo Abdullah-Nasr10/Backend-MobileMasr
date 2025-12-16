@@ -5,6 +5,12 @@ export const createProduct = async (req, res) => {
     try {
         const product = new Product(req.body);
         await product.save();
+
+        // Populate references
+        await product.populate("category");
+        await product.populate("brand");
+        await product.populate("vendor");
+
         res.status(201).json({
             success: true,
             message: "Product created successfully",
@@ -17,9 +23,10 @@ export const createProduct = async (req, res) => {
 
 // ========== Get All Products ==========
 export const getProducts = async (req, res) => {
-
     try {
+        const lang = req.query.lang || "en";
         const pageParam = req.query.page;
+
         // Base query with populates
         const baseQuery = Product.find()
             .populate("category")
@@ -35,13 +42,45 @@ export const getProducts = async (req, res) => {
         // If page is not provided, return all products
         if (typeof pageParam === 'undefined') {
             products = await baseQuery;
-            return res.status(200).json({ success: true, data: products, totalPages });
+        } else {
+            const page = Math.max(1, parseInt(pageParam) || 1);
+            products = await baseQuery.limit(pageSize).skip((page - 1) * pageSize);
         }
 
-        const page = Math.max(1, parseInt(pageParam) || 1);
-        products = await baseQuery.limit(pageSize).skip((page - 1) * pageSize);
+        // Localize products
+        const localizedProducts = products.map(p => ({
+            _id: p._id,
+            name: p.name?.[lang] || p.name?.en,
+            description: p.description?.[lang],
+            condition: p.condition?.[lang],
+            accessories: p.accessories?.[lang],
+            batteryStatus: p.batteryStatus?.[lang],
+            guarantee: p.guarantee?.[lang],
+            price: p.price,
+            discount: p.discount,
+            priceAfterDiscount: p.priceAfterDiscount,
+            skuCode: p.skuCode,
+            storage: p.storage,
+            ram: p.ram,
+            stock: p.stock,
+            processor: p.processor,
+            gpu: p.gpu,
+            hdd: p.hdd,
+            ssd: p.ssd,
+            color: p.color,
+            batteryCapacity: p.batteryCapacity,
+            simCard: p.simCard,
+            screenSize: p.screenSize,
+            camera: p.camera,
+            weight: p.weight,
+            images: p.images,
+            category: p.category?.name?.[lang] || p.category?.name?.en || p.category,
+            brand: p.brand?.name?.[lang] || p.brand?.name?.en || p.brand,
+            vendor: p.vendor,
+            date: p.date
+        }));
 
-        res.status(200).json({ success: true, data: products, totalPages });
+        res.status(200).json({ success: true, data: localizedProducts, totalPages });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -50,6 +89,7 @@ export const getProducts = async (req, res) => {
 // ========== Get Single Product ==========
 export const getProductById = async (req, res) => {
     try {
+        const lang = req.query.lang || "en";
         const product = await Product.findById(req.params.id)
             .populate("category")
             .populate("brand")
@@ -59,7 +99,40 @@ export const getProductById = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
-        res.status(200).json({ success: true, data: product });
+        // Localize product
+        const localizedProduct = {
+            _id: product._id,
+            name: product.name?.[lang] || product.name?.en,
+            description: product.description?.[lang],
+            condition: product.condition?.[lang],
+            accessories: product.accessories?.[lang],
+            batteryStatus: product.batteryStatus?.[lang],
+            guarantee: product.guarantee?.[lang],
+            price: product.price,
+            discount: product.discount,
+            priceAfterDiscount: product.priceAfterDiscount,
+            skuCode: product.skuCode,
+            storage: product.storage,
+            ram: product.ram,
+            stock: product.stock,
+            processor: product.processor,
+            gpu: product.gpu,
+            hdd: product.hdd,
+            ssd: product.ssd,
+            color: product.color,
+            batteryCapacity: product.batteryCapacity,
+            simCard: product.simCard,
+            screenSize: product.screenSize,
+            camera: product.camera,
+            weight: product.weight,
+            images: product.images,
+            category: product.category?.name?.[lang] || product.category?.name?.en || product.category,
+            brand: product.brand?.name?.[lang] || product.brand?.name?.en || product.brand,
+            vendor: product.vendor,
+            date: product.date
+        };
+
+        res.status(200).json({ success: true, data: localizedProduct });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -72,7 +145,7 @@ export const updateProduct = async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        );
+        ).populate("category").populate("brand").populate("vendor");
 
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });

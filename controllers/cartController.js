@@ -50,6 +50,7 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
   try {
     const userId = req.user._id;
+    const lang = req.query.lang || "en";
 
     let cart = await Cart.findOne({ user: userId })
       .populate("items.product")
@@ -62,7 +63,48 @@ export const getCart = async (req, res) => {
       await cart.save();
     }
 
-    res.status(200).json(cart);
+    // Localize product data
+    const localizedCart = {
+      ...cart.toObject(),
+      items: cart.items.map(item => ({
+        _id: item._id,
+        quantity: item.quantity,
+        price: item.price,
+        product: item.product ? {
+          _id: item.product._id,
+          name: item.product.name?.[lang] || item.product.name?.en,
+          description: item.product.description?.[lang],
+          condition: item.product.condition?.[lang],
+          accessories: item.product.accessories?.[lang],
+          batteryStatus: item.product.batteryStatus?.[lang],
+          guarantee: item.product.guarantee?.[lang],
+          price: item.product.price,
+          discount: item.product.discount,
+          priceAfterDiscount: item.product.priceAfterDiscount,
+          skuCode: item.product.skuCode,
+          storage: item.product.storage,
+          ram: item.product.ram,
+          stock: item.product.stock,
+          processor: item.product.processor,
+          gpu: item.product.gpu,
+          hdd: item.product.hdd,
+          ssd: item.product.ssd,
+          color: item.product.color,
+          batteryCapacity: item.product.batteryCapacity,
+          simCard: item.product.simCard,
+          screenSize: item.product.screenSize,
+          camera: item.product.camera,
+          weight: item.product.weight,
+          images: item.product.images,
+          category: item.product.category,
+          brand: item.product.brand,
+          vendor: item.product.vendor,
+          date: item.product.date
+        } : null
+      }))
+    };
+
+    res.status(200).json(localizedCart);
   } catch (error) {
     console.error("Error getting cart:", error);
     res.status(500).json({ message: error.message });

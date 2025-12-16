@@ -6,6 +6,7 @@ import Wishlist from "../models/wishlistModel.js";
 export const getWishlist = async (req, res) => {
     try {
         const userId = req.user._id || req.user.id;
+        const lang = req.query.lang || "en";
 
         const wishlist = await Wishlist.findOne({ user: userId })
             .populate({
@@ -21,7 +22,43 @@ export const getWishlist = async (req, res) => {
             return res.json({ products: [] });
         }
 
-        res.json(wishlist);
+        // Localize products
+        const localizedWishlist = {
+            ...wishlist.toObject(),
+            products: wishlist.products.map(product => ({
+                _id: product._id,
+                name: product.name?.[lang] || product.name?.en,
+                description: product.description?.[lang],
+                condition: product.condition?.[lang],
+                accessories: product.accessories?.[lang],
+                batteryStatus: product.batteryStatus?.[lang],
+                guarantee: product.guarantee?.[lang],
+                price: product.price,
+                discount: product.discount,
+                priceAfterDiscount: product.priceAfterDiscount,
+                skuCode: product.skuCode,
+                storage: product.storage,
+                ram: product.ram,
+                stock: product.stock,
+                processor: product.processor,
+                gpu: product.gpu,
+                hdd: product.hdd,
+                ssd: product.ssd,
+                color: product.color,
+                batteryCapacity: product.batteryCapacity,
+                simCard: product.simCard,
+                screenSize: product.screenSize,
+                camera: product.camera,
+                weight: product.weight,
+                images: product.images,
+                category: product.category,
+                brand: product.brand,
+                vendor: product.vendor,
+                date: product.date
+            }))
+        };
+
+        res.json(localizedWishlist);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -34,6 +71,7 @@ export const addToWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user._id || req.user.id;
+        const lang = req.query.lang || "en";
 
         let wishlist = await Wishlist.findOne({ user: userId });
 
@@ -47,7 +85,41 @@ export const addToWishlist = async (req, res) => {
                 path: "products",
                 populate: { path: "vendor", select: "name _id" }
             });
-            return res.json({ status: "exists", products: wishlist.products });
+
+            // Localize products
+            const localizedProducts = wishlist.products.map(product => ({
+                _id: product._id,
+                name: product.name?.[lang] || product.name?.en,
+                description: product.description?.[lang],
+                condition: product.condition?.[lang],
+                accessories: product.accessories?.[lang],
+                batteryStatus: product.batteryStatus?.[lang],
+                guarantee: product.guarantee?.[lang],
+                price: product.price,
+                discount: product.discount,
+                priceAfterDiscount: product.priceAfterDiscount,
+                skuCode: product.skuCode,
+                storage: product.storage,
+                ram: product.ram,
+                stock: product.stock,
+                processor: product.processor,
+                gpu: product.gpu,
+                hdd: product.hdd,
+                ssd: product.ssd,
+                color: product.color,
+                batteryCapacity: product.batteryCapacity,
+                simCard: product.simCard,
+                screenSize: product.screenSize,
+                camera: product.camera,
+                weight: product.weight,
+                images: product.images,
+                category: product.category,
+                brand: product.brand,
+                vendor: product.vendor,
+                date: product.date
+            }));
+
+            return res.json({ status: "exists", products: localizedProducts });
         }
 
         wishlist.products.push(productId);
@@ -59,7 +131,40 @@ export const addToWishlist = async (req, res) => {
             populate: { path: "vendor", select: "name _id" }
         });
 
-        res.json({ status: "added", products: wishlist.products });
+        // Localize products
+        const localizedProducts = wishlist.products.map(product => ({
+            _id: product._id,
+            name: product.name?.[lang] || product.name?.en,
+            description: product.description?.[lang],
+            condition: product.condition?.[lang],
+            accessories: product.accessories?.[lang],
+            batteryStatus: product.batteryStatus?.[lang],
+            guarantee: product.guarantee?.[lang],
+            price: product.price,
+            discount: product.discount,
+            priceAfterDiscount: product.priceAfterDiscount,
+            skuCode: product.skuCode,
+            storage: product.storage,
+            ram: product.ram,
+            stock: product.stock,
+            processor: product.processor,
+            gpu: product.gpu,
+            hdd: product.hdd,
+            ssd: product.ssd,
+            color: product.color,
+            batteryCapacity: product.batteryCapacity,
+            simCard: product.simCard,
+            screenSize: product.screenSize,
+            camera: product.camera,
+            weight: product.weight,
+            images: product.images,
+            category: product.category,
+            brand: product.brand,
+            vendor: product.vendor,
+            date: product.date
+        }));
+
+        res.json({ status: "added", products: localizedProducts });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -72,6 +177,7 @@ export const removeFromWishlist = async (req, res) => {
     try {
         const { productId } = req.body;
         const userId = req.user._id || req.user.id;
+        const lang = req.query.lang || "en";
 
         let wishlist = await Wishlist.findOne({ user: userId });
 
@@ -84,13 +190,46 @@ export const removeFromWishlist = async (req, res) => {
         );
 
         await wishlist.save();
-        
+
         await wishlist.populate({
             path: "products",
             populate: { path: "vendor", select: "name _id" }
         });
 
-        res.json({ status: "removed", products: wishlist.products });
+        // Localize products
+        const localizedProducts = wishlist.products.map(product => ({
+            _id: product._id,
+            name: product.name?.[lang] || product.name?.en,
+            description: product.description?.[lang],
+            condition: product.condition?.[lang],
+            accessories: product.accessories?.[lang],
+            batteryStatus: product.batteryStatus?.[lang],
+            guarantee: product.guarantee?.[lang],
+            price: product.price,
+            discount: product.discount,
+            priceAfterDiscount: product.priceAfterDiscount,
+            skuCode: product.skuCode,
+            storage: product.storage,
+            ram: product.ram,
+            stock: product.stock,
+            processor: product.processor,
+            gpu: product.gpu,
+            hdd: product.hdd,
+            ssd: product.ssd,
+            color: product.color,
+            batteryCapacity: product.batteryCapacity,
+            simCard: product.simCard,
+            screenSize: product.screenSize,
+            camera: product.camera,
+            weight: product.weight,
+            images: product.images,
+            category: product.category,
+            brand: product.brand,
+            vendor: product.vendor,
+            date: product.date
+        }));
+
+        res.json({ status: "removed", products: localizedProducts });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
