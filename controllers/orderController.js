@@ -72,12 +72,30 @@ export const createOrder = async (req, res) => {
 //  =========================Get all orders (Admin only)==========================
 export const getAllOrdersAdmin = async (req, res) => {
   try {
+    const lang = req.query.lang || "en";
+
     const orders = await Order.find()
       .populate("items.product")
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
-    res.json(orders);
+    // Localize orders
+    const localizedOrders = orders.map(order => ({
+      ...order.toObject(),
+      items: order.items.map(item => ({
+        product: item.product ? {
+          _id: item.product._id,
+          name: item.product.name?.[lang] || item.product.name?.en,
+          images: item.product.images,
+          price: item.product.price
+        } : null,
+        quantity: item.quantity,
+        price: item.price,
+        _id: item._id
+      }))
+    }));
+
+    res.json(localizedOrders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -87,12 +105,29 @@ export const getAllOrdersAdmin = async (req, res) => {
 export const getAllOrdersForUser = async (req, res) => {
   try {
     const userId = req.user._id;
+    const lang = req.query.lang || "en";
 
     const orders = await Order.find({ user: userId })
       .populate("items.product")
       .sort({ createdAt: -1 });
 
-    res.json(orders);
+    // Localize orders
+    const localizedOrders = orders.map(order => ({
+      ...order.toObject(),
+      items: order.items.map(item => ({
+        product: item.product ? {
+          _id: item.product._id,
+          name: item.product.name?.[lang] || item.product.name?.en,
+          images: item.product.images,
+          price: item.product.price
+        } : null,
+        quantity: item.quantity,
+        price: item.price,
+        _id: item._id
+      }))
+    }));
+
+    res.json(localizedOrders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -102,6 +137,7 @@ export const getAllOrdersForUser = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const userId = req.user._id;
+    const lang = req.query.lang || "en";
 
     const order = await Order.findOne({
       _id: req.params.id,
@@ -112,7 +148,23 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    res.json(order);
+    // Localize order
+    const localizedOrder = {
+      ...order.toObject(),
+      items: order.items.map(item => ({
+        product: item.product ? {
+          _id: item.product._id,
+          name: item.product.name?.[lang] || item.product.name?.en,
+          images: item.product.images,
+          price: item.product.price
+        } : null,
+        quantity: item.quantity,
+        price: item.price,
+        _id: item._id
+      }))
+    };
+
+    res.json(localizedOrder);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

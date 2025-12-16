@@ -28,7 +28,7 @@ export const createCheckoutSession = async (req, res) => {
             price_data: {
                 currency: "egp",
                 product_data: {
-                    name: item.product.name,
+                    name: item.product.name?.en || item.product.name?.ar || item.product.name,
                 },
                 unit_amount: Math.round(item.price * 100), // Stripe takes price in cents
             },
