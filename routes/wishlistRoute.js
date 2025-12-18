@@ -16,7 +16,7 @@ import { protect } from "../middleware/authenticatMiddle.js";
  *   get:
  *     tags: [Wishlist]
  *     summary: Get wishlist for a user
- *     description: Retrieve wishlist details (with products) for a given user
+ *     description: Retrieve wishlist details (with products) for a given user with localized product names
  *     parameters:
  *       - in: path
  *         name: userId
@@ -24,9 +24,16 @@ import { protect } from "../middleware/authenticatMiddle.js";
  *         schema:
  *           type: string
  *           example: "66f1c6c0e4b6b6d2c1b2a345"
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product fields
  *     responses:
  *       200:
- *         description: Wishlist retrieved successfully
+ *         description: Wishlist retrieved successfully with localized products
  *       404:
  *         description: Wishlist not found
  */
@@ -46,6 +53,13 @@ router.get("/", protect, WishlistController.getWishlist);
  *         schema:
  *           type: string
  *           example: "66f1c6c0e4b6b6d2c1b2a345"
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product fields
  *     requestBody:
  *       required: true
  *       content:
@@ -58,7 +72,7 @@ router.get("/", protect, WishlistController.getWishlist);
  *                 example: "651234abcde12345fgh67890"
  *     responses:
  *       201:
- *         description: Product added to wishlist
+ *         description: Product added to wishlist with localized data
  *       500:
  *         description: Server error
  */
