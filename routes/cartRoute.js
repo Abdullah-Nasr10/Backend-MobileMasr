@@ -30,9 +30,17 @@ import Cart from "../models/cartModel.js";
  *     tags: [Cart]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product fields
  *     responses:
  *       200:
- *         description: User's cart retrieved successfully
+ *         description: User's cart retrieved successfully with localized products
  *       404:
  *         description: Cart not found
  */

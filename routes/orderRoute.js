@@ -87,9 +87,17 @@ export default router;
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product names
  *     responses:
  *       200:
- *         description: List of all orders
+ *         description: List of all orders with localized product names
  *       401:
  *         description: Unauthorized
  *       403:
@@ -104,9 +112,17 @@ export default router;
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product names
  *     responses:
  *       200:
- *         description: List of user's orders
+ *         description: List of user's orders with localized product names
  *       401:
  *         description: Unauthorized
  */
@@ -127,9 +143,16 @@ export default router;
  *         schema:
  *           type: string
  *         example: "67140dc76464e2544c0b6d9a"
+ *       - in: query
+ *         name: lang
+ *         schema:
+ *           type: string
+ *           enum: [en, ar]
+ *           default: en
+ *         description: Language for localized product names
  *     responses:
  *       200:
- *         description: Order found
+ *         description: Order found with localized product names
  *       404:
  *         description: Order not found
  *       401:
