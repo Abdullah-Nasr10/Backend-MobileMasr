@@ -4,9 +4,11 @@ import {
   getUserById,
   updateUserByAdmin,
   deleteUserByAdmin,
+  updateMyProfilePicture,
 } from "../controllers/adminController.js";
 
 import { protect, admin } from "../middleware/authenticatMiddle.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
@@ -14,6 +16,7 @@ router.get("/users", protect, admin, getAllUsers);
 router.get("/users/:id", protect, admin, getUserById);
 router.put("/users/:id", protect, admin, updateUserByAdmin);
 router.delete("/users/:id", protect, admin, deleteUserByAdmin);
+router.put("/profile-picture", protect, admin, upload.single("image"), updateMyProfilePicture);
 
 /**
  * @swagger
@@ -116,6 +119,35 @@ router.delete("/users/:id", protect, admin, deleteUserByAdmin);
 /**
  * @swagger
  * /admin/users/{id}:
+ * @swagger
+ * /admin/profile-picture:
+ *   put:
+ *     summary: Update admin's own profile picture (upload)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload
+ *     responses:
+ *       200:
+ *         description: Profile picture updated
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Require admin role
  *   delete:
  *     summary: Delete user by ID (Admin only)
  *     tags: [Admin]
