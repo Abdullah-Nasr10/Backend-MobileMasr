@@ -1,8 +1,17 @@
 import Product from "../models/productModel.js";
+import Vendor from "../models/vendorModel.js";
 
 // ========== Create Product ==========
 export const createProduct = async (req, res) => {
     try {
+        // Set default vendor if not provided
+        if (!req.body.vendor || req.body.vendor === '') {
+            const defaultVendor = await Vendor.findOne({ name: 'Mobile Masr' });
+            if (defaultVendor) {
+                req.body.vendor = defaultVendor._id;
+            }
+        }
+
         const product = new Product(req.body);
         await product.save();
 
@@ -141,6 +150,14 @@ export const getProductById = async (req, res) => {
 // ========== Update Product ==========
 export const updateProduct = async (req, res) => {
     try {
+        // Set default vendor if not provided
+        if (!req.body.vendor || req.body.vendor === '') {
+            const defaultVendor = await Vendor.findOne({ name: 'Mobile Masr' });
+            if (defaultVendor) {
+                req.body.vendor = defaultVendor._id;
+            }
+        }
+
         const product = await Product.findByIdAndUpdate(
             req.params.id,
             req.body,

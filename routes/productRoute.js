@@ -173,6 +173,7 @@ import { protect, admin } from "../middleware/authenticatMiddle.js";
  *         vendor:
  *           type: string
  *           example: "66f1c6c0e4b6b6d2c1b2a555"
+ *           description: "Vendor ID (optional, defaults to 'Mobile Masr' if not provided)"
  *         date:
  *           type: string
  *           format: date-time
