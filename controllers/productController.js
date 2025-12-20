@@ -56,6 +56,11 @@ export const getProducts = async (req, res) => {
             products = await baseQuery.limit(pageSize).skip((page - 1) * pageSize);
         }
 
+        // If lang is 'ea', return full products without localization
+        if (lang === 'ea') {
+            return res.status(200).json({ success: true, data: products, totalPages });
+        }
+
         // Localize products
         const localizedProducts = products.map(p => ({
             _id: p._id,
@@ -106,6 +111,11 @@ export const getProductById = async (req, res) => {
 
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        // If lang is 'ea', return full product without localization
+        if (lang === 'ea') {
+            return res.status(200).json({ success: true, data: product });
         }
 
         // Localize product
