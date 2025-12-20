@@ -73,6 +73,43 @@ const deleteUserByAdmin = async (req, res) => {
   }
 };
 
+// ============== PUT /admin/profile-picture (admin only updates own picture) ==============
+const updateMyProfilePicture = async (req, res) => {
+  try {
+    const adminUser = req.user;
+
+    if (!adminUser || adminUser.role !== "admin") {
+      return res.status(403).json({ message: "Require admin role" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    if (!req.file.path) {
+      return res.status(400).json({ message: "Image upload failed" });
+    }
+
+    const user = await User.findById(adminUser._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // إذا كانت هناك صورة قديمة، احذفها من Cloudinary (اختياري)
+    if (user.profilePicture) {
+      // يمكنك إضافة حذف الصورة القديمة هنا
+      // await deleteFromCloudinary(user.profilePicture);
+    }
+
+    user.profilePicture = req.file.path;
+    await user.save();
+
+    res.json({
+      message: "Profile picture updated successfully",
+      user: { _id: user._id, name: user.name, profilePicture: user.profilePicture },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 
 export {
@@ -80,4 +117,5 @@ export {
   getUserById,
   updateUserByAdmin,
   deleteUserByAdmin,
+  updateMyProfilePicture,
 };
