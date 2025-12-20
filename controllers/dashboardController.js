@@ -2,33 +2,32 @@ import User from "../models/userModel.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import Cart from "../models/cartModel.js";
+import Visit from "../models/visitModel.js";
 
 export const getDashboardOverview = async (req, res) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    //  Basic stats
+    // Basic stats
     const totalUsers = await User.countDocuments();
     const totalOrders = await Order.countDocuments();
     const activeCarts = await Cart.countDocuments({ status: "active" });
 
     const paidOrders = await Order.find({ isPaid: true });
-
-    const totalRevenue = paidOrders.reduce(
-      (sum, o) => sum + o.totalPrice,
-      0
-    );
+    const totalRevenue = paidOrders.reduce((sum, o) => sum + o.totalPrice, 0);
 
     const todayOrders = await Order.find({
       isPaid: true,
-      createdAt: { $gte: today }
+      createdAt: { $gte: today },
     });
+    const todaySales = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
 
-    const todaySales = todayOrders.reduce(
-      (sum, o) => sum + o.totalPrice,
-      0
-    );
+    // Visits
+    const totalVisits = await Visit.countDocuments();
+    const todayVisits = await Visit.countDocuments({
+      createdAt: { $gte: today },
+    });
 
     // Recent Orders
     const recentOrders = await Order.find()
@@ -36,18 +35,18 @@ export const getDashboardOverview = async (req, res) => {
       .limit(5)
       .populate("user", "name email");
 
-    //  Newest Users
+    // Newest Users
     const newUsers = await User.find()
       .sort({ createdAt: -1 })
       .limit(5)
       .select("name email role");
 
-    //  Low Stock
+    // Low Stock
     const lowStock = await Product.find({ countInStock: { $lte: 5 } })
       .limit(5)
       .select("name image countInStock");
 
-    //  Best Sellers (from order items)
+    // Best Sellers
     const bestSellers = await Order.aggregate([
       { $unwind: "$orderItems" },
       {
@@ -58,52 +57,52 @@ export const getDashboardOverview = async (req, res) => {
           totalQty: { $sum: "$orderItems.qty" },
           totalRevenue: {
             $sum: {
-              $multiply: ["$orderItems.qty", "$orderItems.price"]
-            }
-          }
-        }
+              $multiply: ["$orderItems.qty", "$orderItems.price"],
+            },
+          },
+        },
       },
       { $sort: { totalQty: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
     ]);
 
-    //  Sales chart (last 30 days)
+    // Sales chart
     const salesChart = await Order.aggregate([
       {
         $match: {
           isPaid: true,
           createdAt: {
-            $gte: new Date(new Date().setDate(new Date().getDate() - 30))
-          }
-        }
+            $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+          },
+        },
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
           },
-          total: { $sum: "$totalPrice" }
-        }
+          total: { $sum: "$totalPrice" },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
-    //  Orders per week (last 4 weeks)
+    // Orders per week
     const ordersChart = await Order.aggregate([
       {
         $match: {
           createdAt: {
-            $gte: new Date(new Date().setDate(new Date().getDate() - 28))
-          }
-        }
+            $gte: new Date(new Date().setDate(new Date().getDate() - 28)),
+          },
+        },
       },
       {
         $group: {
           _id: { $week: "$createdAt" },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     res.json({
@@ -112,47 +111,49 @@ export const getDashboardOverview = async (req, res) => {
         totalOrders,
         totalRevenue,
         activeCarts,
-        todaySales
+        todaySales,
+        totalVisits,
+        todayVisits,
       },
 
-      salesChart: salesChart.map(i => ({
+      salesChart: salesChart.map((i) => ({
         date: i._id,
-        value: i.total
+        value: i.total,
       })),
 
-      ordersChart: ordersChart.map(i => ({
+      ordersChart: ordersChart.map((i) => ({
         week: i._id,
-        count: i.count
+        count: i.count,
       })),
 
-      recentOrders: recentOrders.map(o => ({
+      recentOrders: recentOrders.map((o) => ({
         _id: o._id,
         customerName: o.user?.name,
         date: o.createdAt,
         total: o.totalPrice,
-        status: o.status
+        status: o.status,
       })),
 
-      bestSellers: bestSellers.map(p => ({
+      bestSellers: bestSellers.map((p) => ({
         _id: p._id,
         name: p.name,
         image: p.image,
         sales: p.totalQty,
-        revenue: p.totalRevenue
+        revenue: p.totalRevenue,
       })),
 
-      lowStock: lowStock.map(p => ({
+      lowStock: lowStock.map((p) => ({
         _id: p._id,
         name: p.name,
         image: p.image,
-        stock: p.countInStock
+        stock: p.countInStock,
       })),
 
-      newUsers
+      newUsers,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to load dashboard data" });
   }
 };
+

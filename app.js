@@ -28,6 +28,7 @@ import siteReviewRoutes from "./routes/siteReviewRoutes.js";
 import stripeRoutes from "./routes/stripeRoutes.js";
 import { webhookHandler } from "./controllers/stripeController.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import visitRoutes from "./routes/visitRoutes.js";
 
 
 
@@ -57,6 +58,7 @@ app.use(cors())
 
 
 // =============Routes====================
+app.use("/track", visitRoutes);
 app.use("/products", productRoutes);
 app.use("/brands", brandRoutes);
 app.use("/wishlist", wishlistRoute);
@@ -68,7 +70,7 @@ app.use("/cart", cartRoutes);
 app.use("/orders", orderRoutes);
 app.use("/reviews", siteReviewRoutes);
 app.use("/stripe", stripeRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 
 
