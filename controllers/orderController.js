@@ -1,5 +1,6 @@
 import Order from "../models/orderModel.js";
 import Cart from "../models/cartModel.js";
+import Product from "../models/productModel.js";
 
 // =================Create a new order from a cart==========================
 export const createOrder = async (req, res) => {
@@ -21,6 +22,18 @@ export const createOrder = async (req, res) => {
 
     if (!cart || cart.items.length === 0) {
       return res.status(404).json({ message: "Cart is empty" });
+    }
+
+    // Check if stock is sufficient for all items
+    for (const item of cart.items) {
+      if (item.product.stock < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for product: ${item.product.name?.en || item.product.name}`,
+          product: item.product.name,
+          availableStock: item.product.stock,
+          requestedQuantity: item.quantity
+        });
+      }
     }
 
     // Create order items snapshot (preserve prices at checkout time)
@@ -54,6 +67,19 @@ export const createOrder = async (req, res) => {
     });
 
     await newOrder.save();
+
+    // Update stock and sale for each product
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(
+        item.product._id,
+        {
+          $inc: {
+            stock: -item.quantity,  // Decrease stock
+            sale: item.quantity      // Increase sale
+          }
+        }
+      );
+    }
 
     // Clear cart after order creation
     cart.items = [];
@@ -175,6 +201,33 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus, paymentStatus } = req.body;
 
+    // Get the current order first
+    const currentOrder = await Order.findById(req.params.id);
+    if (!currentOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // If changing to canceled and wasn't canceled before, restore stock and sale
+    if (
+      orderStatus === "canceled" &&
+      currentOrder.orderStatus !== "canceled"
+    ) {
+      for (const item of currentOrder.items) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          await Product.findByIdAndUpdate(
+            item.product,
+            {
+              $inc: {
+                stock: item.quantity,
+                sale: product.sale >= item.quantity ? -item.quantity : -product.sale
+              }
+            }
+          );
+        }
+      }
+    }
+
     // Prepare update object
     const updateData = {};
     if (orderStatus) updateData.orderStatus = orderStatus;
@@ -187,10 +240,6 @@ export const updateOrderStatus = async (req, res) => {
       { new: true }
     );
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-
     res.json({ message: "Order updated successfully", order });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -200,12 +249,32 @@ export const updateOrderStatus = async (req, res) => {
 //  =========================Delete an order==========================
 export const deleteOrder = async (req, res) => {
   try {
-    // Delete order by ID
-    const order = await Order.findByIdAndDelete(req.params.id);
+    // Find order before deletion to restore stock and sale
+    const order = await Order.findById(req.params.id);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
+    // Restore stock and sale for each product
+    for (const item of order.items) {
+      const product = await Product.findById(item.product);
+
+      if (product) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          {
+            $inc: {
+              stock: item.quantity,   // Restore stock
+              sale: product.sale >= item.quantity ? -item.quantity : -product.sale    // Decrease sale but not below 0
+            }
+          }
+        );
+      }
+    }
+
+    // Delete order
+    await Order.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Order deleted successfully" });
   } catch (error) {

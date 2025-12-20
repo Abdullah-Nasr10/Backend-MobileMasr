@@ -26,6 +26,7 @@ const ProductSchema = new mongoose.Schema({
     storage: { type: String },
     ram: [{ type: String }],
     stock: { type: Number, default: 0, min: 0 },
+    sale: { type: Number, default: 0, min: 0 },
     processor: { type: String },
     gpu: { type: String },
     hdd: { type: String },
