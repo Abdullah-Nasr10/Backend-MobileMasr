@@ -58,7 +58,7 @@ export const getProducts = async (req, res) => {
 
         // If lang is 'ea', return full products without localization
         if (lang === 'ea') {
-            return res.status(200).json({ success: true, data: products, totalPages });
+            return res.status(200).json({ success: true, data: products, totalPages, totalProducts: totalItems });
         }
 
         // Localize products
@@ -94,7 +94,7 @@ export const getProducts = async (req, res) => {
             date: p.date
         }));
 
-        res.status(200).json({ success: true, data: localizedProducts, totalPages });
+        res.status(200).json({ success: true, data: localizedProducts, totalPages, totalProducts: totalItems });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
