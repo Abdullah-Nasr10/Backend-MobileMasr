@@ -36,19 +36,51 @@ export const getProducts = async (req, res) => {
         const lang = req.query.lang || "en";
         const pageParam = req.query.page;
 
-        // Base query with populates
-        const baseQuery = Product.find()
+        // =======================
+        // 🔹 NEW: read search query (optional)
+        // =======================
+        const search = req.query.search?.trim();
+
+        // =======================
+        // 🔹 NEW: build filter object (empty by default)
+        // =======================
+        let filter = {};
+
+        // =======================
+        // 🔹 NEW: apply search on all products (not just page)
+        // =======================
+        if (search) {
+            if (lang === 'ea') {
+                filter.$or = [
+                    { "name.en": { $regex: search, $options: "i" } },
+                    { "name.ar": { $regex: search, $options: "i" } },
+                    { skuCode: { $regex: search, $options: "i" } }
+                ];
+            } else {
+                filter.$or = [
+                    { [`name.${lang}`]: { $regex: search, $options: "i" } },
+                    { skuCode: { $regex: search, $options: "i" } }
+                ];
+            }
+        }
+
+        // Base query with populates (same logic, just using filter)
+        const baseQuery = Product.find(filter)
             .populate("category")
             .populate("brand")
             .populate("vendor");
 
         // simple page size
         const pageSize = 15;
-        const totalItems = await Product.countDocuments();
+
+        // =======================
+        // 🔹 NEW: count based on filter (search-aware)
+        // =======================
+        const totalItems = await Product.countDocuments(filter);
         const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / pageSize);
 
         let products;
-        // If page is not provided, return all products
+        // If page is not provided, return all products (same behavior)
         if (typeof pageParam === 'undefined') {
             products = await baseQuery;
         } else {
@@ -58,10 +90,15 @@ export const getProducts = async (req, res) => {
 
         // If lang is 'ea', return full products without localization
         if (lang === 'ea') {
-            return res.status(200).json({ success: true, data: products, totalPages, totalProducts: totalItems });
+            return res.status(200).json({
+                success: true,
+                data: products,
+                totalPages,
+                totalProducts: totalItems
+            });
         }
 
-        // Localize products
+        // Localize products (UNCHANGED)
         const localizedProducts = products.map(p => ({
             _id: p._id,
             name: p.name?.[lang] || p.name?.en,
@@ -94,12 +131,16 @@ export const getProducts = async (req, res) => {
             date: p.date
         }));
 
-        res.status(200).json({ success: true, data: localizedProducts, totalPages, totalProducts: totalItems });
+        res.status(200).json({
+            success: true,
+            data: localizedProducts,
+            totalPages,
+            totalProducts: totalItems
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
 // ========== Get Single Product ==========
 export const getProductById = async (req, res) => {
     try {
