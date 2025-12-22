@@ -50,7 +50,7 @@ const OrderSchema = new mongoose.Schema({
     default: "pending"
   },
 
-  createdAt: { type: Date, default: Date.now },
+   createdAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model("Order", OrderSchema);

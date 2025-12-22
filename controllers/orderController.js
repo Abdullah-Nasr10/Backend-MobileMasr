@@ -163,12 +163,17 @@ export const getAllOrdersForUser = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const userId = req.user._id;
+    const userRole = req.user.role; // Get user role
     const lang = req.query.lang || "en";
 
-    const order = await Order.findOne({
-      _id: req.params.id,
-      user: userId // Make sure user owns this order
-    }).populate("items.product");
+
+    // Allow admin to view any order, or user to view their own order
+    const query = userRole === "admin" 
+      ? { _id: req.params.id }
+      : { _id: req.params.id, user: userId };
+
+    const order = await Order.findOne(query).populate("items.product");
+
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
