@@ -2,8 +2,38 @@ import User from "../models/userModel.js";
 // ========================GET /admin/users=========================
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
-    res.json({ count: users.length, users });
+    const pageParam = req.query.page;
+    const search = req.query.search?.trim();
+    const pageSize = 8;
+
+    // Build filter
+    let filter = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const totalUsers = await User.countDocuments(filter);
+    const totalPages = totalUsers === 0 ? 0 : Math.ceil(totalUsers / pageSize);
+
+    let users;
+    if (typeof pageParam === 'undefined') {
+      users = await User.find(filter).select("-password");
+    } else {
+      const page = Math.max(1, parseInt(pageParam) || 1);
+      users = await User.find(filter)
+        .select("-password")
+        .limit(pageSize)
+        .skip((page - 1) * pageSize);
+    }
+
+    res.json({
+      users,
+      totalPages,
+      totalUsers
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
