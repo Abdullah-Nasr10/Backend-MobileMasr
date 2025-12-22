@@ -14,7 +14,7 @@ export const createOrder = async (req, res) => {
       city,
       street,
       notes,
-      paymentMethod // "cod" or "online"
+      paymentMethod, // "cod" or "online"
     } = req.body;
 
     // Find user's cart
@@ -28,19 +28,21 @@ export const createOrder = async (req, res) => {
     for (const item of cart.items) {
       if (item.product.stock < item.quantity) {
         return res.status(400).json({
-          message: `Insufficient stock for product: ${item.product.name?.en || item.product.name}`,
+          message: `Insufficient stock for product: ${
+            item.product.name?.en || item.product.name
+          }`,
           product: item.product.name,
           availableStock: item.product.stock,
-          requestedQuantity: item.quantity
+          requestedQuantity: item.quantity,
         });
       }
     }
 
     // Create order items snapshot (preserve prices at checkout time)
-    const items = cart.items.map(item => ({
+    const items = cart.items.map((item) => ({
       product: item.product._id,
       quantity: item.quantity,
-      price: item.price // priceAfterDiscount from cart
+      price: item.price, // priceAfterDiscount from cart
     }));
 
     const subtotal = cart.totalPrice;
@@ -70,15 +72,12 @@ export const createOrder = async (req, res) => {
 
     // Update stock and sale for each product
     for (const item of cart.items) {
-      await Product.findByIdAndUpdate(
-        item.product._id,
-        {
-          $inc: {
-            stock: -item.quantity,  // Decrease stock
-            sale: item.quantity      // Increase sale
-          }
-        }
-      );
+      await Product.findByIdAndUpdate(item.product._id, {
+        $inc: {
+          stock: -item.quantity, // Decrease stock
+          sale: item.quantity, // Increase sale
+        },
+      });
     }
 
     // Clear cart after order creation
@@ -91,7 +90,9 @@ export const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating order:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -106,19 +107,21 @@ export const getAllOrdersAdmin = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Localize orders
-    const localizedOrders = orders.map(order => ({
+    const localizedOrders = orders.map((order) => ({
       ...order.toObject(),
-      items: order.items.map(item => ({
-        product: item.product ? {
-          _id: item.product._id,
-          name: item.product.name?.[lang] || item.product.name?.en,
-          images: item.product.images,
-          price: item.product.price
-        } : null,
+      items: order.items.map((item) => ({
+        product: item.product
+          ? {
+              _id: item.product._id,
+              name: item.product.name?.[lang] || item.product.name?.en,
+              images: item.product.images,
+              price: item.product.price,
+            }
+          : null,
         quantity: item.quantity,
         price: item.price,
-        _id: item._id
-      }))
+        _id: item._id,
+      })),
     }));
 
     res.json(localizedOrders);
@@ -138,19 +141,21 @@ export const getAllOrdersForUser = async (req, res) => {
       .sort({ createdAt: -1 });
 
     // Localize orders
-    const localizedOrders = orders.map(order => ({
+    const localizedOrders = orders.map((order) => ({
       ...order.toObject(),
-      items: order.items.map(item => ({
-        product: item.product ? {
-          _id: item.product._id,
-          name: item.product.name?.[lang] || item.product.name?.en,
-          images: item.product.images,
-          price: item.product.price
-        } : null,
+      items: order.items.map((item) => ({
+        product: item.product
+          ? {
+              _id: item.product._id,
+              name: item.product.name?.[lang] || item.product.name?.en,
+              images: item.product.images,
+              price: item.product.price,
+            }
+          : null,
         quantity: item.quantity,
         price: item.price,
-        _id: item._id
-      }))
+        _id: item._id,
+      })),
     }));
 
     res.json(localizedOrders);
@@ -166,16 +171,13 @@ export const getOrderById = async (req, res) => {
     const userRole = req.user.role; // Get user role
     const lang = req.query.lang || "en";
 
-    console.log("Fetching order ID:", req.params.id, "| User ID:", userId, "| User Role:", userRole);
-
     // Allow admin to view any order, or user to view their own order
-    const query = userRole === "admin" 
-      ? { _id: req.params.id }
-      : { _id: req.params.id, user: userId };
+    const query =
+      userRole === "admin"
+        ? { _id: req.params.id }
+        : { _id: req.params.id, user: userId };
 
     const order = await Order.findOne(query).populate("items.product");
-
-    console.log("Query used:", query, "| Order found:", !!order);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -184,17 +186,19 @@ export const getOrderById = async (req, res) => {
     // Localize order
     const localizedOrder = {
       ...order.toObject(),
-      items: order.items.map(item => ({
-        product: item.product ? {
-          _id: item.product._id,
-          name: item.product.name?.[lang] || item.product.name?.en,
-          images: item.product.images,
-          price: item.product.price
-        } : null,
+      items: order.items.map((item) => ({
+        product: item.product
+          ? {
+              _id: item.product._id,
+              name: item.product.name?.[lang] || item.product.name?.en,
+              images: item.product.images,
+              price: item.product.price,
+            }
+          : null,
         quantity: item.quantity,
         price: item.price,
-        _id: item._id
-      }))
+        _id: item._id,
+      })),
     };
 
     res.json(localizedOrder);
@@ -215,22 +219,17 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     // If changing to canceled and wasn't canceled before, restore stock and sale
-    if (
-      orderStatus === "canceled" &&
-      currentOrder.orderStatus !== "canceled"
-    ) {
+    if (orderStatus === "canceled" && currentOrder.orderStatus !== "canceled") {
       for (const item of currentOrder.items) {
         const product = await Product.findById(item.product);
         if (product) {
-          await Product.findByIdAndUpdate(
-            item.product,
-            {
-              $inc: {
-                stock: item.quantity,
-                sale: product.sale >= item.quantity ? -item.quantity : -product.sale
-              }
-            }
-          );
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: {
+              stock: item.quantity,
+              sale:
+                product.sale >= item.quantity ? -item.quantity : -product.sale,
+            },
+          });
         }
       }
     }
@@ -241,11 +240,9 @@ export const updateOrderStatus = async (req, res) => {
     if (paymentStatus) updateData.paymentStatus = paymentStatus;
 
     // Update the order's status and return the updated document
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    const order = await Order.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
 
     res.json({ message: "Order updated successfully", order });
   } catch (error) {
@@ -268,15 +265,13 @@ export const deleteOrder = async (req, res) => {
       const product = await Product.findById(item.product);
 
       if (product) {
-        await Product.findByIdAndUpdate(
-          item.product,
-          {
-            $inc: {
-              stock: item.quantity,   // Restore stock
-              sale: product.sale >= item.quantity ? -item.quantity : -product.sale    // Decrease sale but not below 0
-            }
-          }
-        );
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: {
+            stock: item.quantity, // Restore stock
+            sale:
+              product.sale >= item.quantity ? -item.quantity : -product.sale, // Decrease sale but not below 0
+          },
+        });
       }
     }
 
