@@ -29,6 +29,7 @@ import stripeRoutes from "./routes/stripeRoutes.js";
 import { webhookHandler } from "./controllers/stripeController.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import visitRoutes from "./routes/visitRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 
 
@@ -71,6 +72,7 @@ app.use("/orders", orderRoutes);
 app.use("/reviews", siteReviewRoutes);
 app.use("/stripe", stripeRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/ai", aiRoutes);
 
 
 
