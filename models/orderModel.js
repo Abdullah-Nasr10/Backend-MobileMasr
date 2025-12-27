@@ -17,6 +17,11 @@ const OrderSchema = new mongoose.Schema({
     notes: { type: String },
   },
 
+  stockDeducted: {
+  type: Boolean,
+  default: false
+},
+
   // ========== Payment ==========
   paymentMethod: {
     type: String,
@@ -25,7 +30,7 @@ const OrderSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "failed", "refunded"],
+    enum: ["pending", "paid","refunded"],
     default: "pending"
   },
 

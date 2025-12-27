@@ -113,7 +113,7 @@ export const verifySession = async (req, res) => {
                 shippingAddress,
                 paymentMethod: "online",
                 paymentStatus: "paid",
-                orderStatus: "confirmed",
+                orderStatus: "pending",
                 subtotal,
                 shippingFees,
                 totalAmount,
