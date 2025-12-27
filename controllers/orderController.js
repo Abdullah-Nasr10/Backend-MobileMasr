@@ -246,6 +246,19 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus } = req.body;
 
+    const allowedStatuses = [
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!orderStatus || !allowedStatuses.includes(orderStatus)) {
+      return res.status(400).json({ message: "Invalid order status" });
+    }
+
     const order = await Order.findById(req.params.id).populate("items.product");
 
     if (!order) {
@@ -257,7 +270,8 @@ export const updateOrderStatus = async (req, res) => {
      * CONFIRMED → خصم ستوك (COD + ONLINE)
      * ==================================
      */
-    if (orderStatus === "confirmed" && !order.stockDeducted) {
+    const statusesRequiringStock = ["confirmed", "processing", "shipped", "delivered"];
+    if (statusesRequiringStock.includes(orderStatus) && !order.stockDeducted) {
       for (const item of order.items) {
         const product = await Product.findById(item.product._id);
 
@@ -276,7 +290,6 @@ export const updateOrderStatus = async (req, res) => {
       }
 
       order.stockDeducted = true;
-      order.orderStatus = "confirmed";
     }
 
     /**
@@ -304,17 +317,15 @@ export const updateOrderStatus = async (req, res) => {
       return res.json({ message: "Order cancelled", order });
     }
 
+    order.orderStatus = orderStatus;
+
     /**
      * ==================================
      * DELIVERED
      * ==================================
      */
-    if (orderStatus === "delivered") {
-      order.orderStatus = "delivered";
-
-      if (order.paymentMethod === "cod") {
-        order.paymentStatus = "paid";
-      }
+    if (orderStatus === "delivered" && order.paymentMethod === "cod") {
+      order.paymentStatus = "paid";
     }
 
     await order.save();
