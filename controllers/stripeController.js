@@ -4,6 +4,7 @@
 import { getStripe } from "../config/stripeClient.js";
 import Cart from "../models/cartModel.js";
 import Order from "../models/orderModel.js";
+import Product from "../models/productModel.js";
 
 
 export const createCheckoutSession = async (req, res) => {
@@ -70,6 +71,7 @@ export const createCheckoutSession = async (req, res) => {
 };
 
 export const verifySession = async (req, res) => {
+    let deductedItems = [];
     try {
         const stripe = getStripe();
 
@@ -92,6 +94,40 @@ export const verifySession = async (req, res) => {
 
             if (!cart) {
                 return res.status(404).json({ message: "Cart not found" });
+            }
+
+            // Check stock then deduct immediately (online)
+            for (const item of cart.items) {
+                const updated = await Product.findOneAndUpdate(
+                    {
+                        _id: item.product._id,
+                        stock: { $gte: item.quantity }
+                    },
+                    {
+                        $inc: {
+                            stock: -item.quantity,
+                            sale: item.quantity
+                        }
+                    },
+                    { new: true }
+                );
+
+                if (!updated) {
+                    for (const rollbackItem of deductedItems) {
+                        await Product.findByIdAndUpdate(rollbackItem.productId, {
+                            $inc: {
+                                stock: rollbackItem.quantity,
+                                sale: -rollbackItem.quantity
+                            }
+                        });
+                    }
+
+                    return res.status(400).json({
+                        message: `Insufficient stock for product: ${item.product.name?.en || item.product.name}`
+                    });
+                }
+
+                deductedItems.push({ productId: item.product._id, quantity: item.quantity });
             }
 
             // Create order items snapshot
@@ -117,6 +153,7 @@ export const verifySession = async (req, res) => {
                 subtotal,
                 shippingFees,
                 totalAmount,
+                stockDeducted: true
             });
 
             // Clear cart
@@ -139,6 +176,16 @@ export const verifySession = async (req, res) => {
             });
         }
     } catch (err) {
+        if (deductedItems.length) {
+            for (const rollbackItem of deductedItems) {
+                await Product.findByIdAndUpdate(rollbackItem.productId, {
+                    $inc: {
+                        stock: rollbackItem.quantity,
+                        sale: -rollbackItem.quantity
+                    }
+                });
+            }
+        }
         console.log(err);
         res.status(500).json({ message: "Error verifying payment", error: err.message });
     }

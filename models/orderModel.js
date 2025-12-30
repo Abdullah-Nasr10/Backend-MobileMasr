@@ -55,6 +55,9 @@ const OrderSchema = new mongoose.Schema({
     default: "pending"
   },
 
+  previousStatus: { type: String },
+  previousPaymentStatus: { type: String },
+
    createdAt: { type: Date, default: Date.now },
 });
 
