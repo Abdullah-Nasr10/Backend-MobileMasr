@@ -4,6 +4,7 @@ import Product from "../models/productModel.js";
 
 // =================Create a new order from a cart==========================
 export const createOrder = async (req, res) => {
+  let deductedItems = [];
   try {
     const userId = req.user._id; // Get user from token (protect middleware)
 
@@ -47,43 +48,62 @@ export const createOrder = async (req, res) => {
     const shippingFees = 100; // Fixed shipping fee (or make it dynamic)
     const totalAmount = subtotal + shippingFees;
 
+    // Deduct stock immediately on order placement (applies to COD + online)
+    for (const item of cart.items) {
+      const updated = await Product.findOneAndUpdate(
+        {
+          _id: item.product._id,
+          stock: { $gte: item.quantity }
+        },
+        {
+          $inc: {
+            stock: -item.quantity,
+            sale: item.quantity
+          }
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        // Roll back any prior deductions to keep inventory consistent
+        for (const rollbackItem of deductedItems) {
+          await Product.findByIdAndUpdate(rollbackItem.productId, {
+            $inc: {
+              stock: rollbackItem.quantity,
+              sale: -rollbackItem.quantity
+            }
+          });
+        }
+
+        return res.status(400).json({
+          message: `Insufficient stock for product: ${item.product.name?.en || item.product.name}`
+        });
+      }
+
+      deductedItems.push({ productId: item.product._id, quantity: item.quantity });
+    }
+
     const newOrder = new Order({
-  user: userId,
-  shippingAddress: {
-    fullName,
-    phone,
-    governorate,
-    city,
-    street,
-    notes,
-  },
-  paymentMethod,
-  paymentStatus: paymentMethod === "online" ? "paid" : "pending",
-  items,
-  subtotal,
-  shippingFees,
-  totalAmount,
-
-  // 🔥 جميع الطلبات تبدأ بحالة pending - الأدمن يقبل الطلب فقط يتم خصم المخزون
-  orderStatus: "pending",
-  stockDeducted: false
-});
-
+      user: userId,
+      shippingAddress: {
+        fullName,
+        phone,
+        governorate,
+        city,
+        street,
+        notes,
+      },
+      paymentMethod,
+      paymentStatus: paymentMethod === "online" ? "paid" : "pending",
+      items,
+      subtotal,
+      shippingFees,
+      totalAmount,
+      orderStatus: "pending",
+      stockDeducted: true
+    });
 
     await newOrder.save();
-
-    // Update stock and sale for each product
-    // for (const item of cart.items) {
-    //   await Product.findByIdAndUpdate(
-    //     item.product._id,
-    //     {
-    //       $inc: {
-    //         stock: -item.quantity,  // Decrease stock
-    //         sale: item.quantity      // Increase sale
-    //       }
-    //     }
-    //   );
-    // }
 
     // Clear cart after order creation
     cart.items = [];
@@ -94,6 +114,18 @@ export const createOrder = async (req, res) => {
       order: newOrder,
     });
   } catch (error) {
+    // Roll back stock deductions if order creation fails after deduction
+    if (deductedItems.length) {
+      for (const rollbackItem of deductedItems) {
+        await Product.findByIdAndUpdate(rollbackItem.productId, {
+          $inc: {
+            stock: rollbackItem.quantity,
+            sale: -rollbackItem.quantity
+          }
+        });
+      }
+    }
+
     console.error("Error creating order:", error);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
@@ -265,39 +297,19 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    /**
-     * ==================================
-     * CONFIRMED → خصم ستوك (COD + ONLINE)
-     * ==================================
-     */
-    const statusesRequiringStock = ["confirmed", "processing", "shipped", "delivered"];
-    if (statusesRequiringStock.includes(orderStatus) && !order.stockDeducted) {
-      for (const item of order.items) {
-        const product = await Product.findById(item.product._id);
+    const computePaymentStatus = (targetStatus, paymentMethod) => {
+      if (targetStatus === "cancelled") return "refunded";
+      if (paymentMethod === "online") return "paid";
+      return targetStatus === "delivered" ? "paid" : "pending";
+    };
 
-        if (!product || product.stock < item.quantity) {
-          return res.status(400).json({
-            message: `Insufficient stock for ${product?.name}`,
-          });
-        }
-
-        await Product.findByIdAndUpdate(product._id, {
-          $inc: {
-            stock: -item.quantity,
-            sale: item.quantity,
-          },
-        });
+    // Cancel: store previous status/payment, restore stock, mark refunded
+    if (orderStatus === "cancelled") {
+      if (order.orderStatus !== "cancelled") {
+        order.previousStatus = order.orderStatus;
+        order.previousPaymentStatus = order.paymentStatus;
       }
 
-      order.stockDeducted = true;
-    }
-
-    /**
-     * ==================================
-     * CANCELLED → رجوع ستوك
-     * ==================================
-     */
-    if (orderStatus === "cancelled") {
       if (order.stockDeducted) {
         for (const item of order.items) {
           await Product.findByIdAndUpdate(item.product._id, {
@@ -317,15 +329,35 @@ export const updateOrderStatus = async (req, res) => {
       return res.json({ message: "Order cancelled", order });
     }
 
-    order.orderStatus = orderStatus;
+    const statusesNeedingStock = ["pending", "confirmed", "processing", "shipped", "delivered"];
 
-    /**
-     * ==================================
-     * DELIVERED
-     * ==================================
-     */
-    if (orderStatus === "delivered" && order.paymentMethod === "cod") {
-      order.paymentStatus = "paid";
+    // If coming back from cancelled (or any state) and stock not deducted, re-deduct when needed (no hard block)
+    if (!order.stockDeducted && statusesNeedingStock.includes(orderStatus)) {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product._id, {
+          $inc: {
+            stock: -item.quantity,
+            sale: item.quantity,
+          },
+        });
+      }
+
+      order.stockDeducted = true;
+    }
+
+    // If current status is cancelled and requested status equals the stored previous one, restore it
+    if (order.orderStatus === "cancelled" && order.previousStatus && orderStatus === order.previousStatus) {
+      order.orderStatus = order.previousStatus;
+      order.paymentStatus = order.previousPaymentStatus || computePaymentStatus(order.previousStatus, order.paymentMethod);
+    } else {
+      order.orderStatus = orderStatus;
+      order.paymentStatus = computePaymentStatus(orderStatus, order.paymentMethod);
+    }
+
+    // Always keep track of the latest non-cancelled status for future cancels
+    if (order.orderStatus !== "cancelled") {
+      order.previousStatus = order.orderStatus;
+      order.previousPaymentStatus = order.paymentStatus;
     }
 
     await order.save();
@@ -348,29 +380,26 @@ export const deleteOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Check if stock was deducted (only these statuses deduct stock)
-    const wasStockDeducted = ["confirmed", "processing", "shipped", "delivered"].includes(
-      order.orderStatus
-    );
+    const wasStockDeducted = order.stockDeducted;
 
-// Restore stock and sale ONLY if it was deducted
-if (wasStockDeducted) {
-  for (const item of order.items) {
-    const product = await Product.findById(item.product);
+    // Restore stock and sale ONLY if it was deducted
+    if (wasStockDeducted) {
+      for (const item of order.items) {
+        const product = await Product.findById(item.product);
 
-    if (product) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        {
-          $inc: {
-            stock: item.quantity,
-            sale: -item.quantity
-          }
+        if (product) {
+          await Product.findByIdAndUpdate(
+            item.product,
+            {
+              $inc: {
+                stock: item.quantity,
+                sale: -item.quantity
+              }
+            }
+          );
         }
-      );
+      }
     }
-  }
-}
 
     // Delete order
     await Order.findByIdAndDelete(req.params.id);
