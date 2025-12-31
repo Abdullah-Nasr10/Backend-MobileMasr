@@ -57,8 +57,8 @@ const OrderSchema = new mongoose.Schema({
 
   previousStatus: { type: String },
   previousPaymentStatus: { type: String },
-
-   createdAt: { type: Date, default: Date.now },
+}, {
+  timestamps: true, // track createdAt and updatedAt; updatedAt reflects status/payment changes
 });
 
 export default mongoose.model("Order", OrderSchema);

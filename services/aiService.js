@@ -1,7 +1,8 @@
-import client from "../utils/aiClient.js";
+import getClient from "../utils/aiClient.js";
 
 export async function askAI({ systemPrompt, userPrompt, history = [] }) {
   try {
+    const client = getClient();
     const historyMessages = Array.isArray(history)
       ? history.map((msg) => ({ role: msg.role, content: msg.content }))
       : [];

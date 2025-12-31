@@ -1,4 +1,5 @@
 import User from "../models/userModel.js";
+import { adminDashboardAI } from "../features/admin.js";
 // ========================GET /admin/users=========================
 const getAllUsers = async (req, res) => {
   try {
@@ -141,6 +142,44 @@ const updateMyProfilePicture = async (req, res) => {
   }
 };
 
+// ==================== POST /admin/ai-chat =======================
+// AI chat for admin dashboard analytics
+const adminAIChat = async (req, res) => {
+  try {
+    const { question } = req.body;
+    const adminUser = req.user;
+
+    // تحقق من أن المستخدم admin
+    if (!adminUser || adminUser.role !== "admin") {
+      return res.status(403).json({ message: "Require admin role" });
+    }
+
+    if (!question || !question.trim()) {
+      return res.status(400).json({ message: "Question is required" });
+    }
+
+    // استدعاء دالة AI للـ admin
+    const result = await adminDashboardAI({ 
+      question: question.trim(), 
+      userId: adminUser._id 
+    });
+
+    if (result.error) {
+      return res.status(403).json({ error: result.error });
+    }
+
+    res.json({
+      answer: result.answer,
+      dataUsed: result.dataUsed,
+      structuredData: result.structuredData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.log("Admin AI error:", err.message);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 
 export {
   getAllUsers,
@@ -148,4 +187,5 @@ export {
   updateUserByAdmin,
   deleteUserByAdmin,
   updateMyProfilePicture,
+  adminAIChat,
 };
