@@ -1,10 +1,11 @@
 import Product from "../models/productModel.js";
-import client from "../utils/aiClient.js";
+import getClient from "../utils/aiClient.js";
 import OpenAI from "openai";
 
 
 // دالة لحساب embedding لأي نص
 async function getEmbedding(text) {
+  const client = getClient();
   const response = await client.embeddings.create({
     model: "text-embedding-3-small", // أرخص وأسرع
     input: text,

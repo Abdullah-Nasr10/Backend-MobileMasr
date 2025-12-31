@@ -5,6 +5,7 @@ import {
   updateUserByAdmin,
   deleteUserByAdmin,
   updateMyProfilePicture,
+  adminAIChat,
 } from "../controllers/adminController.js";
 
 import { protect, admin } from "../middleware/authenticatMiddle.js";
@@ -17,6 +18,7 @@ router.get("/users/:id", protect, admin, getUserById);
 router.put("/users/:id", protect, admin, updateUserByAdmin);
 router.delete("/users/:id", protect, admin, deleteUserByAdmin);
 router.put("/profile-picture", protect, admin, upload.single("image"), updateMyProfilePicture);
+router.post("/ai-chat", protect, admin, adminAIChat);
 
 /**
  * @swagger

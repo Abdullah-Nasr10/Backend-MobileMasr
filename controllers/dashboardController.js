@@ -6,27 +6,42 @@ import Visit from "../models/visitModel.js";
 
 export const getDashboardOverview = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
 
     // Basic stats
     const totalUsers = await User.countDocuments();
     const totalOrders = await Order.countDocuments();
-    const activeCarts = await Cart.countDocuments({ status: "active" });
 
-    const paidOrders = await Order.find({ paymentStatus: "paid" });
-    const totalRevenue = paidOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-
-    const todayOrders = await Order.find({
-      paymentStatus: "paid",
-      createdAt: { $gte: today },
+    // Active carts = carts that still have products and are not attached to an order yet
+    const activeCarts = await Cart.countDocuments({
+      items: { $exists: true, $ne: [] },
+      $or: [{ order: { $exists: false } }, { order: null }],
     });
+
+    // Revenue and today's sales should only consider orders that are delivered and paid
+    const paidDeliveredFilter = { paymentStatus: "paid", orderStatus: "delivered" };
+
+    const paidDeliveredOrders = await Order.find(paidDeliveredFilter);
+    const totalRevenue = paidDeliveredOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+
+    // Today's sales: orders that were created today and are paid + delivered
+    // This prevents counting old orders that were simply updated to delivered status today
+    const todayOrders = await Order.find({
+      ...paidDeliveredFilter,
+      createdAt: { $gte: startOfToday, $lte: endOfToday },
+    });
+    console.log('DEBUG - Today date range:', { startOfToday, endOfToday });
+    console.log('DEBUG - Today orders found:', todayOrders.length, todayOrders.map(o => ({ _id: o._id, createdAt: o.createdAt, paymentStatus: o.paymentStatus, orderStatus: o.orderStatus, totalAmount: o.totalAmount })));
     const todaySales = todayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+
 
     // Visits
     const totalVisits = await Visit.countDocuments();
     const todayVisits = await Visit.countDocuments({
-      createdAt: { $gte: today },
+      createdAt: { $gte: startOfToday },
     });
 
     // Recent Orders
