@@ -168,8 +168,8 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Abdullah-Nasr10/Backend-FinalProject
-cd Backend-FinalProject
+git clone https://github.com/Abdullah-Nasr10/Backend-MobileMasr.git
+cd Backend-MobileMasr
 ```
 
 ### 2. Install dependencies
