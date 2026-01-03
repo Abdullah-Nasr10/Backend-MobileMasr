@@ -240,7 +240,7 @@ export const getOrderById = async (req, res) => {
 
 
     // Allow admin to view any order, or user to view their own order
-    const query = userRole === "admin" 
+    const query = userRole === "admin"
       ? { _id: req.params.id }
       : { _id: req.params.id, user: userId };
 
