@@ -78,64 +78,134 @@
 
 ## 🚀 API Endpoints
 
-### 🔐 Authentication
+**Total Endpoints: 57**
 
-| Method | Endpoint                | Description            |
-| ------ | ----------------------- | ---------------------- |
-| POST   | `/auth/register`        | Register new user      |
-| POST   | `/auth/login`           | User login             |
-| POST   | `/auth/google`          | Google OAuth login     |
-| POST   | `/auth/forgot-password` | Password reset request |
+### 🔐 Authentication & User Management (7 endpoints)
 
-### 📦 Products
+| Method | Endpoint                | Description           |
+| ------ | ----------------------- | --------------------- |
+| POST   | `/auth/register`        | Register new user     |
+| POST   | `/auth/login`           | User login            |
+| POST   | `/auth/google-login`    | Google OAuth login    |
+| GET    | `/auth/profile`         | Get user profile      |
+| PUT    | `/auth/profile`         | Update user profile   |
+| PUT    | `/auth/change-password` | Change password       |
+| GET    | `/auth/check`           | Verify token validity |
 
-| Method | Endpoint        | Description                   |
-| ------ | --------------- | ----------------------------- |
-| GET    | `/products`     | Get all products              |
-| GET    | `/products/:id` | Get product by ID             |
-| POST   | `/products`     | Create product (Vendor/Admin) |
-| PUT    | `/products/:id` | Update product                |
-| DELETE | `/products/:id` | Delete product                |
+### 📦 Products (5 endpoints)
 
-### 🛒 Cart & Wishlist
+| Method | Endpoint        | Description                |
+| ------ | --------------- | -------------------------- |
+| GET    | `/products`     | Get all products (filters) |
+| GET    | `/products/:id` | Get product by ID          |
+| POST   | `/products`     | Create product (Admin)     |
+| PUT    | `/products/:id` | Update product (Admin)     |
+| DELETE | `/products/:id` | Delete product (Admin)     |
 
-| Method | Endpoint           | Description           |
-| ------ | ------------------ | --------------------- |
-| GET    | `/cart`            | Get user's cart       |
-| POST   | `/cart/add`        | Add item to cart      |
-| DELETE | `/cart/remove/:id` | Remove item from cart |
-| GET    | `/wishlist`        | Get user's wishlist   |
-| POST   | `/wishlist/add`    | Add to wishlist       |
+### 🏷️ Categories (5 endpoints)
 
-### 📋 Orders
+| Method | Endpoint          | Description        |
+| ------ | ----------------- | ------------------ |
+| GET    | `/categories`     | Get all categories |
+| GET    | `/categories/:id` | Get category by ID |
+| POST   | `/categories`     | Create category    |
+| PUT    | `/categories/:id` | Update category    |
+| DELETE | `/categories/:id` | Delete category    |
 
-| Method | Endpoint             | Description                 |
-| ------ | -------------------- | --------------------------- |
-| GET    | `/orders`            | Get user's orders           |
-| POST   | `/orders`            | Create new order            |
-| PUT    | `/orders/:id/status` | Update order status (Admin) |
+### 🏢 Brands (5 endpoints)
 
-### 💳 Payments
+| Method | Endpoint      | Description     |
+| ------ | ------------- | --------------- |
+| GET    | `/brands`     | Get all brands  |
+| GET    | `/brands/:id` | Get brand by ID |
+| POST   | `/brands`     | Create brand    |
+| PUT    | `/brands/:id` | Update brand    |
+| DELETE | `/brands/:id` | Delete brand    |
 
-| Method | Endpoint                  | Description                    |
-| ------ | ------------------------- | ------------------------------ |
-| POST   | `/stripe/create-checkout` | Create Stripe checkout session |
-| POST   | `/stripe/webhook`         | Stripe webhook handler         |
+### 🏪 Vendors (5 endpoints)
 
-### 🤖 AI Features
+| Method | Endpoint       | Description           |
+| ------ | -------------- | --------------------- |
+| GET    | `/vendors`     | Get all vendors       |
+| GET    | `/vendors/:id` | Get vendor by ID      |
+| POST   | `/vendors`     | Create vendor (Admin) |
+| PUT    | `/vendors/:id` | Update vendor (Admin) |
+| DELETE | `/vendors/:id` | Delete vendor (Admin) |
 
-| Method | Endpoint        | Description                    |
-| ------ | --------------- | ------------------------------ |
-| POST   | `/ai/chat`      | Chat with AI assistant         |
-| POST   | `/ai/recommend` | Get AI product recommendations |
-| POST   | `/ai/compare`   | Compare products with AI       |
+### 🛒 Cart (6 endpoints)
 
-### 📊 Dashboard (Admin)
+| Method | Endpoint         | Description            |
+| ------ | ---------------- | ---------------------- |
+| GET    | `/cart`          | Get user's cart        |
+| POST   | `/cart/add`      | Add item to cart       |
+| PUT    | `/cart/update`   | Update quantity        |
+| PUT    | `/cart/remove`   | Remove item            |
+| DELETE | `/cart/clear`    | Clear cart             |
+| POST   | `/cart/checkout` | Create order from cart |
 
-| Method | Endpoint               | Description          |
-| ------ | ---------------------- | -------------------- |
-| GET    | `/dashboard/overview`  | Dashboard statistics |
-| GET    | `/dashboard/analytics` | Sales analytics      |
+### ❤️ Wishlist (4 endpoints)
+
+| Method | Endpoint           | Description            |
+| ------ | ------------------ | ---------------------- |
+| GET    | `/wishlist`        | Get user's wishlist    |
+| POST   | `/wishlist`        | Add to wishlist        |
+| DELETE | `/wishlist/remove` | Remove from wishlist   |
+| DELETE | `/wishlist`        | Delete entire wishlist |
+
+### 📋 Orders (6 endpoints)
+
+| Method | Endpoint            | Description                 |
+| ------ | ------------------- | --------------------------- |
+| POST   | `/orders`           | Create new order            |
+| GET    | `/orders/user`      | Get user's orders           |
+| GET    | `/orders/admin/all` | Get all orders (Admin)      |
+| GET    | `/orders/:id`       | Get order by ID             |
+| PUT    | `/orders/:id`       | Update order status (Admin) |
+| DELETE | `/orders/:id`       | Delete order (Admin)        |
+
+### 💳 Stripe Payment (2 endpoints)
+
+| Method | Endpoint                          | Description                    |
+| ------ | --------------------------------- | ------------------------------ |
+| POST   | `/stripe/create-checkout-session` | Create Stripe checkout session |
+| GET    | `/stripe/verify-session`          | Verify payment session         |
+
+### 🤖 AI Features (1 endpoint)
+
+| Method | Endpoint | Description                             |
+| ------ | -------- | --------------------------------------- |
+| POST   | `/ai`    | AI assistant (chat, recommend, compare) |
+
+### ⭐ Site Reviews (3 endpoints)
+
+| Method | Endpoint       | Description          |
+| ------ | -------------- | -------------------- |
+| POST   | `/reviews`     | Add site review      |
+| GET    | `/reviews`     | Get all site reviews |
+| DELETE | `/reviews/:id` | Delete review        |
+
+### 👨‍💼 Admin Panel (6 endpoints)
+
+| Method | Endpoint                 | Description                  |
+| ------ | ------------------------ | ---------------------------- |
+| GET    | `/admin/users`           | Get all users                |
+| GET    | `/admin/users/:id`       | Get user by ID               |
+| PUT    | `/admin/users/:id`       | Update user by admin         |
+| DELETE | `/admin/users/:id`       | Delete user by admin         |
+| PUT    | `/admin/profile-picture` | Update admin profile picture |
+| POST   | `/admin/ai-chat`         | Admin AI chat                |
+
+### 📊 Dashboard (1 endpoint)
+
+| Method | Endpoint              | Description          |
+| ------ | --------------------- | -------------------- |
+| GET    | `/dashboard/overview` | Dashboard statistics |
+
+### 📈 Visits Tracking (1 endpoint)
+
+| Method | Endpoint  | Description  |
+| ------ | --------- | ------------ |
+| POST   | `/visits` | Track visits |
 
 ---
 
